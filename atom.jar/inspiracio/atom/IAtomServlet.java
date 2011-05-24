@@ -55,12 +55,12 @@ public class IAtomServlet extends AtomServlet {
 	 * @throws HttpException For example, NotAuthorizedException.
 	 * */
 	@Override protected Entry insert(GDataURL url, String slug, Entry entry, PasswordCredential user) throws HttpException {
-		AtomSAO<AtomBean> sao = AtomSAOFactory.get(url);
-		AtomBean bean = sao.toAtomBean(entry);
-		bean = sao.insert(url, bean, slug, user);
+		AtomSAO<AtomBean> sao=AtomSAOFactory.get(url);
+		AtomBean bean=sao.toAtomBean(entry);
+		bean=sao.insert(url, bean, slug, user);
 		try{
-			Style style = url.getParameters().getStyle();
-			entry = bean.toEntry(true, style);//Exception
+			Style style=url.getParameters().getStyle();
+			entry=bean.toEntry(true, style);//Exception
 			return entry;
 		}catch(HttpException he){
 			throw he;
@@ -108,8 +108,8 @@ public class IAtomServlet extends AtomServlet {
 	 * @throws HttpException
 	 * */
 	@Override protected void delete(GDataURL url, String etag, PasswordCredential user) throws HttpException {
-		AtomSAO<AtomBean> sao = AtomSAOFactory.get(url);
-		String id = url.getParameters().getId();
+		AtomSAO<AtomBean> sao=AtomSAOFactory.get(url);
+		String id=url.getParameters().getId();
 		sao.delete(id, etag, user);
 	}
 

@@ -101,7 +101,7 @@ public interface AtomSAO<T extends AtomBean> {
 	 * 	wrong in processing the request and that the servlet should reply 500 Internal
 	 * 	Server Error to the client.
 	 * */
-	Feed get(GDataURL url, PasswordCredential user)  throws HttpException, InternalServerErrorException;
+	Feed get(GDataURL url, PasswordCredential user)throws HttpException, InternalServerErrorException;
 
 	/** Remove a bean from the store.
 	 * @param id The id of the bean to be removed.

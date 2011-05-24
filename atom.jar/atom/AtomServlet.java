@@ -48,7 +48,6 @@ import javax.transaction.SystemException;
 import javax.transaction.UserTransaction;
 import javax.xml.transform.TransformerException;
 
-
 import org.apache.log4j.Logger;
 import org.w3c.dom.Element;
 
@@ -116,32 +115,33 @@ public abstract class AtomServlet extends IHttpServlet {
 	 * @throws IOException
 	 * */
 	@Override protected void doDelete(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		try {
+		try{
 			//Parse input
-			GDataURL url = new GDataURL(request);
-			PasswordCredential user = this.getUser(request);
+			GDataURL url=new GDataURL(request);
+			PasswordCredential user=this.getUser(request);
 			String etag=request.getHeader("If-Match");
 			if(etag==null){
 				//Client has not sent If-Match: Bad request.
 				throw new BadRequestException("Missing If-Match");
 			}
-			etag=inspiracio.servlet.http.ETag.parseStrong(etag);
+			etag=ETag.parseStrong(etag);
 
 			//delegate deleting
 			this.delete(url, etag, user);
 
 			response.setStatus(200);//Successful deletion replies "Ok".
-		} catch (NotAuthorizedException nae){
+		}
+		catch(NotAuthorizedException nae){
 			//Client has not sent credentials: challenge the client.
 			String realm = nae.getRealm();
 			response.addHeader("WWW-Authenticate", "Basic realm=\"" + realm + "\"");
 			response.sendError(401, "Not authorized");
 			String msg = "Challenging Http-BASIC-authentication for " + realm + ".";
 			abort(msg);
-		} catch (ForbiddenException fe){
-			String realm = fe.getRealm();
-			String msg = null;
-
+		}
+		catch(ForbiddenException fe){
+			String realm=fe.getRealm();
+			String msg=null;
 			if (realm != null) {
 				//The client has sent wrong username & password: server forbids access.
 				response.addHeader("WWW-Authenticate", "Basic realm=\"" + realm + "\"");
@@ -151,7 +151,8 @@ public abstract class AtomServlet extends IHttpServlet {
 				msg = fe.getMessage();
 			}
 			response.sendError(403, msg);
-		} catch (HttpException nae){
+		}
+		catch (HttpException nae){
 			//Some other exception.
 			int status=nae.getStatus();
 			String msg=nae.getMessage();
@@ -175,8 +176,8 @@ public abstract class AtomServlet extends IHttpServlet {
 			boolean committed=false;
 			try{
 				//Serve an Atom feed.
-				GDataURL url = new GDataURL(request);
-				PasswordCredential user = this.getUser(request);
+				GDataURL url=new GDataURL(request);
+				PasswordCredential user=this.getUser(request);
 
 				//Start transaction
 				tx=TransactionFactory.getUserTransaction();//NamingException
@@ -239,11 +240,11 @@ public abstract class AtomServlet extends IHttpServlet {
 			}
 
 			//Application exceptions: request is bad or SAO won't deliver.
-			catch (BadRequestException bre){
+			catch(BadRequestException bre){
 				//The client has sent an invalid request.
 				response.sendError(400, "Bad request");
 			}
-			catch (NotAuthorizedException nae){
+			catch(NotAuthorizedException nae){
 				//Client has not sent credentials: challenge the client.
 				String realm = nae.getRealm();
 				response.addHeader("WWW-Authenticate", "Basic realm=\"" + realm + "\"");
@@ -368,7 +369,6 @@ public abstract class AtomServlet extends IHttpServlet {
 
 	/** To edit a Member Resource, a client sends a PUT request to its Member
 	 * URI, as specified in [RFC2616].
-	 * </p>
 	 * <p>
 	 * To avoid unintentional loss of data when editing Member Entries or
 	 * Media Link Entries, an Atom Protocol client SHOULD preserve all
@@ -381,9 +381,9 @@ public abstract class AtomServlet extends IHttpServlet {
 	 * @throws IOException
 	 * */
 	@Override protected void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		try {
-			PasswordCredential user = this.getUser(request);
-			GDataURL url = new GDataURL(request);
+		try{
+			PasswordCredential user=this.getUser(request);
+			GDataURL url=new GDataURL(request);
 
 			//Get If-Match
 			String etag=request.getHeader("If-Match");
@@ -393,10 +393,10 @@ public abstract class AtomServlet extends IHttpServlet {
 			}
 
 			//parse Entry
-			long initial = System.currentTimeMillis();
+			long initial=System.currentTimeMillis();
 
-			InputStream in = request.getInputStream();
-			byte[] prefix = "body=".getBytes("UTF-8");
+			InputStream in=request.getInputStream();
+			byte[] prefix="body=".getBytes("UTF-8");
 			in=new PrefixIgnorerInputStream(prefix, in);//enables testing. Ok for PROD, but you may also eliminate for PROD.
 			Entry entry=Entry.parse(in);
 
@@ -414,25 +414,25 @@ public abstract class AtomServlet extends IHttpServlet {
 			OutputStream out=response.getOutputStream();
 			if(url.getParameters().getPrettyprint())
 				entry.setPrettyprint(true);
-			
 
-			initial = System.currentTimeMillis();
+			initial=System.currentTimeMillis();
 			logger.debug("Beginning to write PUT response at " + initial);
 
 			entry.write(out);//TransformerException
 			out.flush();
 			out.close();
 
-			logger.debug("I needed " + Time.getLapseTimeMessage(initial)
-				+ " to write the response inititated at " + initial);
-		} catch (NotAuthorizedException nae){
+			logger.debug("I needed " + Time.getLapseTimeMessage(initial) + " to write the response inititated at " + initial);
+		}
+		catch (NotAuthorizedException nae){
 			//Client has not sent credentials: challenge the client.
 			String realm = nae.getRealm();
 			response.addHeader("WWW-Authenticate", "Basic realm=\"" + realm + "\"");
 			response.sendError(401, "Not authorized");
 			String msg = "Challenging Http-BASIC-authentication for " + realm + ".";
 			abort(msg);
-		} catch (ForbiddenException fe){
+		}
+		catch(ForbiddenException fe){
 			String realm = fe.getRealm();
 			String msg = null;
 
@@ -446,13 +446,15 @@ public abstract class AtomServlet extends IHttpServlet {
 			}
 			response.sendError(403, msg);
 			abort(msg);
-		} catch (HttpException nae){
+		}
+		catch(HttpException nae){
 			//Some other exception.
 			int status=nae.getStatus();
 			String msg=nae.getMessage();
 			response.sendError(status, msg);
 			this.log(status+"", nae);
-		} catch (TransformerException te){
+		}
+		catch (TransformerException te){
 			throw new ServletException(te);
 		}
 	}
@@ -464,44 +466,48 @@ public abstract class AtomServlet extends IHttpServlet {
 	 * */
 	private void doInsert(HttpServletRequest request, HttpServletResponse response, Element root)throws ServletException,IOException{
 		try{
-			PasswordCredential user = this.getUser(request);
-			GDataURL url = new GDataURL(request);
+			PasswordCredential user=this.getUser(request);
+			GDataURL url=new GDataURL(request);
 			Entry entry=Entry.parse(root);
 
 			//parse Slug header. Value is URL-encoded with UTF-8.
-			String slug = request.getHeader("Slug");//null if there is none
+			String slug=request.getHeader("Slug");//null if there is none
 
 			//delegate to subclass
-			entry = this.insert(url, slug, entry, user);
+			entry=this.insert(url, slug, entry, user);
 
 			//write response header and body
 			response.setStatus(201);//Created
 			response.setContentType("application/atom+xml; charset=UTF-8");
-			String entryURI = entry.getURI();
+			String entryURI=entry.getURI();
 			response.setHeader("Location", entryURI);
-			OutputStream out = response.getOutputStream();//IOException
+			OutputStream out=response.getOutputStream();//IOException
 			if(url.getParameters().getPrettyprint())
 				entry.setPrettyprint(true);
 			entry.write(out);//TransformerException
 			out.flush();//IOException
 			out.close();//IOException
-		} catch (NotAuthorizedException nae){
+		}
+		catch (NotAuthorizedException nae){
 			//Client has not sent credentials: challenge the client.
 			String realm = nae.getRealm();
 			response.addHeader("WWW-Authenticate", "Basic realm=\"" + realm + "\"");
 			response.sendError(401, "Not authorized");//IOException
 			String msg = "Challenging Http-BASIC-authentication for " + realm + ".";
 			abort(msg);
-		} catch (ForbiddenException fe){
-			String msg = fe.getMessage();
+		}
+		catch (ForbiddenException fe){
+			String msg=fe.getMessage();
 			response.sendError(403, msg);//IOException
 			abort(msg);
-		} catch (HttpException nae){//Some other exception.
+		}
+		catch (HttpException nae){//Some other exception.
 			int status=nae.getStatus();
 			String msg = nae.getLocalizedMessage();
 			response.sendError(status, msg);//IOException
 			this.log(status+"", nae);//If an error-page declaration has been made for the web application corresponding to the status code passed in, it will be served back in preference to the suggested msg parameter.
-		} catch (TransformerException te){//Writing result XML has failed.
+		}
+		catch (TransformerException te){//Writing result XML has failed.
 			throw new ServletException(te);
 		}
 	}
@@ -781,9 +787,9 @@ public abstract class AtomServlet extends IHttpServlet {
 	 * */
 	private PasswordCredential getUser(HttpServletRequest request){
 		PasswordCredential user = null;
-		//Maybe client is sending the authorization?
+		//Maybe client is sending the authorisation?
 		String authorization = request.getHeader("Authorization");
-		if (authorization!=null && authorization.startsWith("Basic ")){
+		if(authorization!=null && authorization.startsWith("Basic ")){
 			//Client has sent credentials: check them.
 			//check user & password
 			String credentials = authorization.substring(6);//cut off "Basic "
@@ -791,9 +797,9 @@ public abstract class AtomServlet extends IHttpServlet {
 			String[] ss = userPassword.split(":");
 			String name = ss[0];
 			String password = ss[1];
-			user = new PasswordCredential(name, password.toCharArray());
-		} else {
-			user = null;
+			user=new PasswordCredential(name, password.toCharArray());
+		}else{
+			user=null;
 		}
 		return user;
 	}

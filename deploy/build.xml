@@ -35,7 +35,7 @@
 	<target name="daily_build">
 		<fail unless="version" message="Specify -Dversion=0.0.1.02 or similar."/>
 		
-		<!--Update version.txt, submit and copy it to web applications.
+		<!--Update version.txt.
 			Also substitute version into release_notes.html.
 		-->
 		<echo file="version.txt" message="${version}"/>
@@ -50,10 +50,7 @@
 		<antcall target="build" />
 		<antcall target="javadoc" />
 
-		<!--Copy the stuff.-->
-		<copy file="version.txt" todir="../../builds/" overwrite="true"/>
-		<copy file="release_notes.html" todir="../../builds/" overwrite="true"/>
-		<copy todir="../../builds/" overwrite="true" ><fileset dir="stage/"/></copy>		
+		<!--Copy the stuff - to where?-->
 	</target>
 
 	<target name="javadoc">
