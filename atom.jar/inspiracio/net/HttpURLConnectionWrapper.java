@@ -60,7 +60,8 @@ class HttpURLConnectionWrapper extends HttpURLConnection {
 	@Override public boolean getAllowUserInteraction() {return con.getAllowUserInteraction();}
 	@Override public int getConnectTimeout() {return con.getConnectTimeout();}
 	@Override public Object getContent() throws IOException {return con.getContent();}
-	@Override public Object getContent(@SuppressWarnings("rawtypes") Class[] classes) throws IOException {return con.getContent(classes);}
+	@SuppressWarnings("unchecked")
+	@Override public Object getContent(Class[] classes) throws IOException {return con.getContent(classes);}
 	@Override public String getContentEncoding(){return con.getContentEncoding();}
 	@Override public int getContentLength() {return con.getContentLength();}
 	@Override public String getContentType() {return con.getContentType();}
