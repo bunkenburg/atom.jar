@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="atom" default="build" basedir="..">
+
+	<taskdef resource="net/sf/antcontrib/antlib.xml" />
+	
+	<target name="compile" description="Compiles atom.jar/.">
+		<!--Compile. Don't use anything that Eclipse has compiled.-->
+	    <javac destdir="atom.jar/" debug="true" includeantruntime="false">
+    		<src path="atom.jar/"/>
+	    	<classpath>
+    			<fileset dir="compile/"><include name="**/*.jar"/></fileset>
+    			<fileset dir="lib/"><include name="**/*.jar"/></fileset>
+    		</classpath>
+    	</javac>
+	</target>
+		
+	<target name="clean" description="Clean old compiled classes.">
+		<delete><fileset dir="atom.jar/" includes="**/*.class"/></delete>
+	</target>
+				
+	<target name="build" description="Builds a fresh stage/atom.jar." depends="compile">
+		<!--Make the JAR with generated MANIFEST.MF-->
+		<loadfile property="version" srcfile="version.txt" />
+		<mkdir dir="stage"/>
+		<jar destfile="stage/atom.jar" basedir="atom.jar" index="true">
+			<manifest>
+				<attribute name="Built-By" value="${user.name}"/>
+				<attribute name="Implementation-Vendor" value="alex@inspiracio.cat"/>
+				<attribute name="Implementation-Title" value="atom.jar"/>
+				<attribute name="Implementation-Version" value="${version}"/>
+			</manifest>
+		</jar>
+	</target>
+		
+	<target name="daily_build">
+		<fail unless="version" message="Specify -Dversion=0.0.1.02 or similar."/>
+		
+		<!--Update version.txt, submit and copy it to web applications.
+			Also substitute version into release_notes.html.
+		-->
+		<echo file="version.txt" message="${version}"/>
+		<replaceregexp
+			file="release_notes.html"
+			match="&lt;td id='version'>.*&lt;/td>"
+			replace="&lt;td id='version'>${version}&lt;/td>"
+		>
+		</replaceregexp>
+		
+		<delete quiet="true" dir="stage"/><mkdir dir="stage"/>
+		<antcall target="build" />
+		<antcall target="javadoc" />
+
+		<!--Copy the stuff.-->
+		<copy file="version.txt" todir="../../builds/" overwrite="true"/>
+		<copy file="release_notes.html" todir="../../builds/" overwrite="true"/>
+		<copy todir="../../builds/" overwrite="true" ><fileset dir="stage/"/></copy>		
+	</target>
+
+	<target name="javadoc">
+		<loadfile property="version" srcfile="version.txt" />
+		<copy file="atom.jar/overview.html" todir="stage/"/>
+		<replace file="stage/overview.html" token="$${version}" value="${version}" />
+		<javadoc 
+			sourcepath="atom.jar/" 
+			destdir="doc/" 
+			overview="stage/overview.html"
+			version="true"
+			use="true"
+			author="true"
+			windowtitle="atom.jar ${version}"
+			doctitle="atom.jar ${version}"
+			header="atom.jar ${version}"
+			footer="atom.jar ${version}"
+		>
+	    	<classpath>
+    			<fileset dir="compile/"><include name="**/*.jar"/></fileset>
+    			<fileset dir="lib/"><include name="**/*.jar"/></fileset>
+    		</classpath>
+			<link href="http://java.sun.com/javase/6/docs/api/"/>
+			<link href="http://java.sun.com/javaee/5/docs/api/"/>
+			<bottom></bottom>
+		</javadoc>
+		<delete file="stage/overview.html"></delete>
+		<zip destfile="stage/atom_javadoc.zip" basedir="doc/" />
+	</target>
+
+</project>

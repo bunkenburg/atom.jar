@@ -1,0 +1,2 @@
+Here JARs that are only necessary for compilation.
+They should not be deployed in the server.
