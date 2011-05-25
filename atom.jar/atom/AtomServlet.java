@@ -80,17 +80,9 @@ import atom.gdata.GDataURL;
 public abstract class AtomServlet extends IHttpServlet{
 	private static final Logger logger=Logger.getLogger(AtomServlet.class);
 
-	/** Invalidates the session, and then services the request.
-	 * Make sure that the client is not trying to keep a session on an atom
-	 * request. For example, Java Web Start has a cookie manager which
-	 * keeps track of session, but atom is REST and user shouldn't be kept
-	 * by server.
-	 */
+	/** Wraps super.service(), just for measuring the time of an Atom request. */
 	@Override protected void service(HttpServletRequest request,HttpServletResponse response) throws ServletException, IOException {
 		long initial=System.currentTimeMillis();
-		logger.debug("Received a request " + request.getMethod() + " with content legnth of " + request.getContentLength() + " at " + initial);
-		request.getSession().invalidate();
-		logger.debug("Session invalidated " + Time.getLapseTimeMessage(initial) + " after receiving the request");
 		super.service(request, response);
 		logger.debug("Atom needed " + Time.getLapseTimeMessage(initial) + " to process the request " + request.getMethod() + " at " + initial);
 	}

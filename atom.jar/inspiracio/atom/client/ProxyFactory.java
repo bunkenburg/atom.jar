@@ -41,18 +41,20 @@ import java.io.OutputStream;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.net.HttpCookie;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
 import java.security.Principal;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.jsp.PageContext;
 import javax.xml.transform.TransformerException;
-
 
 import org.apache.log4j.Logger;
 
@@ -78,6 +80,10 @@ public final class ProxyFactory implements PageContextMaker, PrincipalMaker{
 
 	/** The logged-in principal, if there is one. */
 	private Principal principal=null;
+	
+	/** The cookies to include in every request,
+	 * in a map be cookie name. */
+	private Map<String,HttpCookie>cookies=new HashMap<String,HttpCookie>();
 
 	/** The special page context object.
 	 * Every thread that executes ProxyFactory.get(...) must have its
@@ -124,14 +130,15 @@ public final class ProxyFactory implements PageContextMaker, PrincipalMaker{
 
 	//Constructor --------------------------------------
 
-	/** new factory */
-	public ProxyFactory(HttpURL url) {
+	/** New factory
+	 * @param base Base URL, like "https://ubuntu:443/studio/atom/-/"
+	 * */
+	public ProxyFactory(HttpURL base){
 		this();
-		this.base = url.toString();
+		this.base=base.toString();
 	}
 
 	/** new factory */
-	/** New factory. */
 	public ProxyFactory(){
 		PrincipalFactory.addPrincipalMaker(this);//Register it as principal maker
 	}
@@ -190,7 +197,8 @@ public final class ProxyFactory implements PageContextMaker, PrincipalMaker{
 		HttpURL url=new HttpURL(this.base);
 		return url.getPort();
 	}
-
+	
+	/** Sets name for http basic authentication. */
 	public void setName(String name){
 		String old=this.name;
 		if(!Equals.equals(old, name)){	//Only if there's really a change
@@ -201,8 +209,16 @@ public final class ProxyFactory implements PageContextMaker, PrincipalMaker{
 		}
 	}
 
+	/** Gets the name for http basic authentication. */
 	public String getName(){return name;}
 
+	/** Sets this cookie to every request. 
+	 * Overwrites previously set cookie with same name. */
+	public void setCookie(HttpCookie cookie){
+		String name=cookie.getName();
+		this.cookies.put(name, cookie);
+	}
+	
 	/** Sets the logged-in user principal. */
 	public void setCallerPrincipal(Principal principal){this.principal=principal;}
 
@@ -211,6 +227,7 @@ public final class ProxyFactory implements PageContextMaker, PrincipalMaker{
 	 * If this maker is appropriate, but there is not current user, also returns null. */
 	@Override public Principal getCallerPrincipal(){return this.principal;}
 
+	/** Sets the password for http basic authentication. */
 	public void setPassword(String password){
 		String old=this.password;
 		if(!Equals.equals(old, password)){	//only if there's really a change
@@ -225,7 +242,7 @@ public final class ProxyFactory implements PageContextMaker, PrincipalMaker{
 	public String getBaseURL(){return base;}
 	@Override public PageContext getPageContext(){return pc;}
 
-	/** Set name and password together.
+	/** Set name and password together, for http basic authentication.
 	 * Generates a property changed event for the listeners without specifying
 	 * which property changed. */
 	public void setNamePassword(String name, String password){
@@ -280,7 +297,7 @@ public final class ProxyFactory implements PageContextMaker, PrincipalMaker{
 
 	/** call all the listeners to tell them about a property change event */
 	private void propertyChanged(PropertyChangeEvent e){
-		List<PropertyChangeListener> copy = new ArrayList<PropertyChangeListener>();
+		List<PropertyChangeListener> copy=new ArrayList<PropertyChangeListener>();
 		synchronized(this.listeners){
 			for(PropertyChangeListener listener : this.listeners)
 				copy.add(listener);
@@ -301,6 +318,8 @@ public final class ProxyFactory implements PageContextMaker, PrincipalMaker{
 		URL u=new URL(s);//MalformedURLException
 		HttpURLConnection con=(HttpURLConnection)u.openConnection();//IOException
 		con=new IHttpURLConnection(con);
+		this.basicAuthentication(con);
+		this.cookies(con);
 		return con;
 	}
 
@@ -310,15 +329,41 @@ public final class ProxyFactory implements PageContextMaker, PrincipalMaker{
 	 * @param con
 	 * */
 	private void basicAuthentication(HttpURLConnection con){
-		String name = this.name;
+		String name=this.name;
 		if(name!=null){
-			String password = this.password;
+			String password=this.password;
 			String credentials = name + ":" + password;
 			logger.trace("encoding Basic credentials for user: " + name);
 			credentials = Base64Coder.encode(credentials);
 			con.setRequestProperty("Authorization", "Basic " + credentials);
 		}
 
+		//Also add http header to identify GData version.
+		//GData-Version: 2
+		con.setRequestProperty("GData-Version", "2");
+	}
+
+	/** If the factory is configured with cookie(s), adds a
+	 * request header for the cookie(s) to the
+	 * http URL connection. Else does nothing.
+	 * @param con
+	 * */
+	private void cookies(HttpURLConnection con){
+		if(!this.cookies.isEmpty()){
+			StringBuilder value=new StringBuilder();
+			boolean first=true;
+			for(HttpCookie cookie : this.cookies.values()){
+				if(!first)
+					value.append("; ");
+				value.append(cookie.getName());
+				value.append("=");
+				value.append(cookie.getValue());
+				first=false;
+			}
+			String s=value.toString();
+			con.setRequestProperty("Cookie", s);
+		}
+		
 		//Also add http header to identify GData version.
 		//GData-Version: 2
 		con.setRequestProperty("GData-Version", "2");
@@ -413,7 +458,6 @@ public final class ProxyFactory implements PageContextMaker, PrincipalMaker{
 
 			//using java's HttpURLConnection
 			con=openConnection(url);
-			this.basicAuthentication(con);
 			//Problem: JBoss's implementation of http basic authentication with POST gives me an
 			//empty request input stream! But with PUT it works fine. So here a workaround:
 			//Simulate a POST by sending a PUT with a http header indicating the real desired
@@ -508,7 +552,6 @@ public final class ProxyFactory implements PageContextMaker, PrincipalMaker{
 
 			//using java's HttpURLConnection
 			con=openConnection(url);
-			this.basicAuthentication(con);
 			//Problem: JBoss's implementation of http basic authentication with POST gives me an
 			//empty request input stream! But with PUT it works fine. So here a workaround:
 			//Simulate a POST by sending a PUT with a http header indicating the real desired
@@ -586,7 +629,6 @@ public final class ProxyFactory implements PageContextMaker, PrincipalMaker{
 
 			//using java's HttpURLConnection
 			con=openConnection(url);//MalformedURLException, IOException
-			basicAuthentication(con);
 			etag=ETag.makeStrong(etag);
 			con.setRequestProperty("If-Match", etag);
 			con.setRequestMethod("DELETE");//ProtocolException
@@ -635,7 +677,6 @@ public final class ProxyFactory implements PageContextMaker, PrincipalMaker{
 			logger.debug("PUT " + url + " - bean: " + bean);
 
 			con=openConnection(url);
-			basicAuthentication(con);
 			String etag=bean.getETag();
 			etag=ETag.makeStrong(etag);
 			con.setRequestProperty("If-Match", etag);
@@ -706,7 +747,6 @@ public final class ProxyFactory implements PageContextMaker, PrincipalMaker{
 			logger.debug("GET " + url);
 			con=openConnection(url);
 			con.setRequestMethod("GET");//ProtocolException
-			basicAuthentication(con);
 
 			InputStream in=con.getInputStream();//IOException 401
 			logger.debug("HTTP response code: " + con.getResponseCode());//IOException

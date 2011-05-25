@@ -27,7 +27,15 @@ import atom.gdata.GDataURL;
 
 /** Access to AtomSAOs. 
  * The URL must have exactly one category, and that category identifies the SAO. */
-class AtomSAOFactory {
+class AtomSAOFactory{
+	
+	/** The prefix for packages of Atom beans.
+	 * For example, if it's "com.siine", and the category is "user", 
+	 * then the bean class is "com.siine.user.User". */
+	static String BEAN_PACKAGE_PREFIX;
+	static void setBeanPackage(String beanPackage){
+		AtomSAOFactory.BEAN_PACKAGE_PREFIX=beanPackage;
+	}
 
 	/** For given URL return the SAO. 
 	 * This implementation tries to guess the class name and instantiates.
@@ -40,7 +48,7 @@ class AtomSAOFactory {
 		Category category=categories.get(0);
 		String term=category.getTerm();
 		String Term=Character.toUpperCase(term.charAt(0)) + term.substring(1);
-		String className="inspiracio." + term + "." + Term + "AtomSAO";//Improve: generalise package name
+		String className=BEAN_PACKAGE_PREFIX + "." + term + "." + Term + "AtomSAO";
 		try{
 			Class<?> clazz=Class.forName(className);//ClassNotFoundException If you can't find the class, think about class loaders!
 			Object o=clazz.newInstance();//IllegalAccessException, InstantiationException

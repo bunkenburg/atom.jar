@@ -34,7 +34,7 @@ import org.apache.log4j.Logger;
  * Principal p=PrincipalFactory.getCallerPrincipal();
  * */
 public class PrincipalFactory{
-	private static final Logger logger = Logger.getLogger(PrincipalFactory.class);
+	private static final Logger logger=Logger.getLogger(PrincipalFactory.class);
 
 	/** no instantiation: everything static */
 	private PrincipalFactory(){}

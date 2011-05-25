@@ -22,11 +22,14 @@ import inspiracio.servlet.http.InternalServerErrorException;
 import inspiracio.servlet.http.PreconditionFailedException;
 import inspiracio.servlet.jsp.PageContextFactory;
 
+import java.io.IOException;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.jsp.PageContext;
 
 import org.apache.log4j.Logger;
@@ -43,6 +46,16 @@ import atom.gdata.Style;
  * */
 public class IAtomServlet extends AtomServlet{
 	private static final Logger logger=Logger.getLogger(IAtomServlet.class);
+	
+	/** Wraps super.service(), just for getting init-parameter beanPackage and
+	 * passing it to AtomSAOFactory. 
+	 * (Maybe can do this is a better way?)*/
+	@Override protected void service(HttpServletRequest request,HttpServletResponse response) throws ServletException, IOException{
+		String beanPackage=this.getInitParameter("beanPackage");
+		AtomSAOFactory.setBeanPackage(beanPackage);
+		
+		super.service(request, response);
+	}
 
 	/** Create an entry.
 	 * @param slug The client wants the URL of the new entry to contain something
