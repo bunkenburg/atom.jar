@@ -77,8 +77,8 @@ import atom.gdata.GDataURL;
 	&lt;/servlet-mapping>
  * </pre>
  * */
-public abstract class AtomServlet extends IHttpServlet {
-	private static final Logger logger = Logger.getLogger(AtomServlet.class);
+public abstract class AtomServlet extends IHttpServlet{
+	private static final Logger logger=Logger.getLogger(AtomServlet.class);
 
 	/** Invalidates the session, and then services the request.
 	 * Make sure that the client is not trying to keep a session on an atom
@@ -87,22 +87,12 @@ public abstract class AtomServlet extends IHttpServlet {
 	 * by server.
 	 */
 	@Override protected void service(HttpServletRequest request,HttpServletResponse response) throws ServletException, IOException {
-		long initial = System.currentTimeMillis();
-		logger.debug("Received a request " + request.getMethod()
-				+ " with content legnth of " + request.getContentLength()
-				+ " at " + initial);
-
+		long initial=System.currentTimeMillis();
+		logger.debug("Received a request " + request.getMethod() + " with content legnth of " + request.getContentLength() + " at " + initial);
 		request.getSession().invalidate();
-
-		logger.debug("Session invalidated " + Time.getLapseTimeMessage(initial)
-			+ " after receiving the request");
-
+		logger.debug("Session invalidated " + Time.getLapseTimeMessage(initial) + " after receiving the request");
 		super.service(request, response);
-
-		logger.debug(
-			"Atom needed " + Time.getLapseTimeMessage(initial)
-			+ " to process the request " + request.getMethod()
-			+ " at " + initial);
+		logger.debug("Atom needed " + Time.getLapseTimeMessage(initial) + " to process the request " + request.getMethod() + " at " + initial);
 	}
 
 	/** To delete a Member Resource, a client sends a DELETE request to its
@@ -118,7 +108,7 @@ public abstract class AtomServlet extends IHttpServlet {
 		try{
 			//Parse input
 			GDataURL url=new GDataURL(request);
-			PasswordCredential user=this.getUser(request);
+			//PasswordCredential user=this.getUser(request);
 			String etag=request.getHeader("If-Match");
 			if(etag==null){
 				//Client has not sent If-Match: Bad request.
@@ -127,7 +117,7 @@ public abstract class AtomServlet extends IHttpServlet {
 			etag=ETag.parseStrong(etag);
 
 			//delegate deleting
-			this.delete(url, etag, user);
+			this.delete(url, etag);
 
 			response.setStatus(200);//Successful deletion replies "Ok".
 		}
@@ -177,13 +167,13 @@ public abstract class AtomServlet extends IHttpServlet {
 			try{
 				//Serve an Atom feed.
 				GDataURL url=new GDataURL(request);
-				PasswordCredential user=this.getUser(request);
+				//PasswordCredential user=this.getUser(request);
 
 				//Start transaction
 				tx=TransactionFactory.getUserTransaction();//NamingException
 				tx.begin();//NotSupportedException, SystemException
 
-				Feed feed=this.get(url, user);//HttpException
+				Feed feed=this.get(url);//HttpException
 				if(feed==null){
 					response.sendError(404, "Not found");
 					String msg = "Requested object was not found.";
@@ -357,12 +347,12 @@ public abstract class AtomServlet extends IHttpServlet {
 			Element root=DOM.getDocumentRoot(in);//TransformerException
 			in.close();
 			boolean isInsert="entry".equals(root.getTagName());
-			if(isInsert){
+			if(isInsert)
 				this.doInsert(request, response, root);
-			}else{
+			else
 				this.doBatch(request, response, root);
-			}
-		}catch(TransformerException te){
+		}
+		catch(TransformerException te){
 			throw new ServletException(te);
 		}
 	}
@@ -382,7 +372,7 @@ public abstract class AtomServlet extends IHttpServlet {
 	 * */
 	@Override protected void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		try{
-			PasswordCredential user=this.getUser(request);
+			//PasswordCredential user=this.getUser(request);
 			GDataURL url=new GDataURL(request);
 
 			//Get If-Match
@@ -406,7 +396,7 @@ public abstract class AtomServlet extends IHttpServlet {
 			in.close();
 
 			//delegate to subclass
-			entry=this.update(url, entry, user);
+			entry=this.update(url, entry);
 
 			//write response header and body
 			response.setStatus(200);//Ok
@@ -436,13 +426,13 @@ public abstract class AtomServlet extends IHttpServlet {
 			String realm = fe.getRealm();
 			String msg = null;
 
-			if (realm != null) {
+			if(realm!=null) {
 				//The client has sent wrong username & password: server forbids access.
 				response.addHeader("WWW-Authenticate", "Basic realm=\"" + realm + "\"");
-				msg = "Http-BASIC-authentication for " + realm + " has failed.";
-			} else {
+				msg="Http-BASIC-authentication for " + realm + " has failed.";
+			}else{
 				// Forbidden by some other reason
-				msg = fe.getMessage();
+				msg=fe.getMessage();
 			}
 			response.sendError(403, msg);
 			abort(msg);
@@ -466,7 +456,7 @@ public abstract class AtomServlet extends IHttpServlet {
 	 * */
 	private void doInsert(HttpServletRequest request, HttpServletResponse response, Element root)throws ServletException,IOException{
 		try{
-			PasswordCredential user=this.getUser(request);
+			//PasswordCredential user=this.getUser(request);
 			GDataURL url=new GDataURL(request);
 			Entry entry=Entry.parse(root);
 
@@ -474,7 +464,7 @@ public abstract class AtomServlet extends IHttpServlet {
 			String slug=request.getHeader("Slug");//null if there is none
 
 			//delegate to subclass
-			entry=this.insert(url, slug, entry, user);
+			entry=this.insert(url, slug, entry);
 
 			//write response header and body
 			response.setStatus(201);//Created
@@ -490,10 +480,10 @@ public abstract class AtomServlet extends IHttpServlet {
 		}
 		catch (NotAuthorizedException nae){
 			//Client has not sent credentials: challenge the client.
-			String realm = nae.getRealm();
+			String realm=nae.getRealm();
 			response.addHeader("WWW-Authenticate", "Basic realm=\"" + realm + "\"");
 			response.sendError(401, "Not authorized");//IOException
-			String msg = "Challenging Http-BASIC-authentication for " + realm + ".";
+			String msg="Challenging Http-BASIC-authentication for " + realm + ".";
 			abort(msg);
 		}
 		catch (ForbiddenException fe){
@@ -503,7 +493,7 @@ public abstract class AtomServlet extends IHttpServlet {
 		}
 		catch (HttpException nae){//Some other exception.
 			int status=nae.getStatus();
-			String msg = nae.getLocalizedMessage();
+			String msg=nae.getLocalizedMessage();
 			response.sendError(status, msg);//IOException
 			this.log(status+"", nae);//If an error-page declaration has been made for the web application corresponding to the status code passed in, it will be served back in preference to the suggested msg parameter.
 		}
@@ -521,7 +511,7 @@ public abstract class AtomServlet extends IHttpServlet {
 	 * */
 	private void doBatch(HttpServletRequest request, HttpServletResponse response,Element root)throws ServletException,IOException{
 		try{
-			PasswordCredential user=this.getUser(request);
+			//PasswordCredential user=this.getUser(request);
 			GDataURL url=new GDataURL(request);
 
 			Feed feed=Feed.parse(root);
@@ -530,7 +520,7 @@ public abstract class AtomServlet extends IHttpServlet {
 			feed=null;//help gc
 
 			//delegate to subclass
-			this.insert(url, entries, user);
+			this.insert(url, entries);
 			entries=null;//help gc
 
 			//write response header and body
@@ -718,55 +708,41 @@ public abstract class AtomServlet extends IHttpServlet {
 	 * @param entry The new entry that the client wants to publish. The server
 	 * 	will store the new entry. The server may alter some of the fields of the
 	 * 	entry. Usually the server will alter the ID of the entry.
-	 * @param user If the client is sending http basic authentication, username and
-	 * 	password, else null. The server may throw an HttpException to signal that it
-	 * 	is not satisfied with the authentication
 	 * @return The entry as stored. The server may have altered some of the fields.
 	 * @throws HttpException For example, NotAuthorizedException.
 	 * */
-	protected abstract Entry insert(GDataURL url, String slug, Entry entry, PasswordCredential user) throws HttpException;
+	protected abstract Entry insert(GDataURL url, String slug, Entry entry) throws HttpException;
 
 	/** Create multiple entries
 	 * @param url
 	 * @param entries
-	 * @param user
 	 * @throws HttpException
 	 * */
-	protected abstract void insert(GDataURL url, List<Entry> entries, PasswordCredential user) throws HttpException;
+	protected abstract void insert(GDataURL url, List<Entry> entries) throws HttpException;
 
 	/** Updates an entry.
 	 * @param entry The entry that the client wants to update. The implementation must check that etag is current.
-	 * @param user If the client has authenticated by http basic authentication, the
-	 * 	username and password, else null. The server may signal it is not satisfied
-	 * 	with the authentication by throwing NotAuthorizedException or ForbiddenException.
 	 * @return The entry as stored. The server may have altered some of the fields.
 	 * @throws PreconditionFailedException if entry.getETag() is not current.
 	 * @throws HttpException
 	 * */
-	protected abstract Entry update(GDataURL url, Entry entry, PasswordCredential user) throws HttpException;
+	protected abstract Entry update(GDataURL url, Entry entry) throws HttpException;
 
 	/** Deletes an entry.
 	 * @param url
 	 * @param etag ETag of the object that the client wants to delete.
-	 * @param user If the client has authenticated by http basic authentication, the
-	 * 	username and password, else null. The server may signal it is not satisfied
-	 * 	with the authentication by throwing NotAuthorizedException or ForbiddenException,
-	 * both identifying realm.
 	 * @throws PreconditionFailedException if etag is not current.
 	 * @throws HttpException
 	 * */
-	protected abstract void delete(GDataURL url, String etag, PasswordCredential user) throws HttpException;
+	protected abstract void delete(GDataURL url, String etag) throws HttpException;
 
 	/** Generates the feed that should be served as response to
 	 * a request to the given URL.
 	 * @param url The URL of the request.
-	 * @param user If the client has authenticated by http basic authentication, the
-	 * 	user name and password, else null. The server may signal it is not satisfied
-	 * 	with the authentication by throwing NotAuthorizedException or ForbiddenException.
 	 * @return The feed that should served.
 	 * @throws HttpException
 	 * */
-	protected abstract Feed get(GDataURL url, PasswordCredential user) throws HttpException;
+	protected abstract Feed get(GDataURL url) throws HttpException;
 
 	/** Call this to signal that there should be no further request processing.
 	 * This implementation throws RuntimeException. A subclass may override with
@@ -785,18 +761,19 @@ public abstract class AtomServlet extends IHttpServlet {
 	 * @param request
 	 * @return username and password or null
 	 * */
+	@SuppressWarnings("unused")
 	private PasswordCredential getUser(HttpServletRequest request){
-		PasswordCredential user = null;
+		PasswordCredential user=null;
 		//Maybe client is sending the authorisation?
-		String authorization = request.getHeader("Authorization");
+		String authorization=request.getHeader("Authorization");
 		if(authorization!=null && authorization.startsWith("Basic ")){
 			//Client has sent credentials: check them.
 			//check user & password
-			String credentials = authorization.substring(6);//cut off "Basic "
-			String userPassword = Base64Coder.decode(credentials);
-			String[] ss = userPassword.split(":");
-			String name = ss[0];
-			String password = ss[1];
+			String credentials=authorization.substring(6);//cut off "Basic "
+			String userPassword=Base64Coder.decode(credentials);
+			String[] ss=userPassword.split(":");
+			String name=ss[0];
+			String password=ss[1];
 			user=new PasswordCredential(name, password.toCharArray());
 		}else{
 			user=null;

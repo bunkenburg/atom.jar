@@ -17,6 +17,7 @@
  */
 package inspiracio.atom;
 
+import inspiracio.lang.NotImplementedException;
 import inspiracio.security.PrincipalFactory;
 import inspiracio.servlet.http.BadRequestException;
 import inspiracio.servlet.http.ForbiddenException;
@@ -28,11 +29,10 @@ import inspiracio.servlet.http.NotAuthorizedException;
 import java.security.Principal;
 import java.util.List;
 
-import javax.resource.spi.security.PasswordCredential;
-
 import atom.Entry;
 import atom.Feed;
 import atom.gdata.GDataURL;
+import atom.gdata.Style;
 
 /** For convenience, a super-class for AtomSAO implementations that provides
  * dummy implementations. Partial AtomSAO implementations can extend this class
@@ -50,9 +50,6 @@ public abstract class AbstractAtomSAO<T extends AtomBean> implements AtomSAO<T> 
 	 * 	may ignore it, or may use some parameters from the URL.
 	 * @param bean The bean to be inserted.
 	 * @param slug The client wants something similar to this String appear in the id.
-	 * @param user If the client has sent username and password in http basic
-	 * 	authentication, here they are. Otherwise null. The SAO may throw an
-	 * 	exception to signal that the client is not correctly authenticated.
 	 * @return The entry as inserted. Usually, the id will have been changed.
 	 * @exception RuntimeException always. Must override if you want creation.
 	 * @throws NotAuthorizedException The SAO requires the client to be authenticated,
@@ -61,20 +58,16 @@ public abstract class AbstractAtomSAO<T extends AtomBean> implements AtomSAO<T> 
 	 * 	the username and password provided by the client could not be validated by the
 	 * 	SAO.
 	 * */
-	public T insert(GDataURL url, T bean, String slug, PasswordCredential user) throws NotAuthorizedException, ForbiddenException, HttpException{
+	public T insert(GDataURL url, T bean, String slug) throws NotAuthorizedException, ForbiddenException, HttpException{
 		throw new MethodNotAllowedException();
 	}
 
-	public void insert(GDataURL url, List<T> beans, PasswordCredential user)
-		throws HttpException, BadRequestException, NotAuthorizedException, ForbiddenException {
+	public void insert(GDataURL url, List<T> beans)throws HttpException, BadRequestException, NotAuthorizedException, ForbiddenException {
 		throw new MethodNotAllowedException();
 	}
 
 	/** Edit a bean.
 	 * @param bean The bean as edited by the client. The id obviously cannot be changed.
-	 * @param user If the client has sent username and password in http basic
-	 * 	authentication, here they are. Otherwise null. The SAO may throw an
-	 * 	exception to signal that the client is not correctly authenticated.
 	 * @exception RuntimeException always. Must override if you want editing.
 	 * @throws NotAuthorizedException The SAO requires the client to be authenticated,
 	 * 	but the client has not provided username and password.
@@ -82,17 +75,23 @@ public abstract class AbstractAtomSAO<T extends AtomBean> implements AtomSAO<T> 
 	 * 	the username and password provided by the client could not be validated by the
 	 * 	SAO.
 	 * */
-	public T update(T bean, PasswordCredential user) throws NotAuthorizedException, ForbiddenException,HttpException{
+	public T update(T bean) throws NotAuthorizedException, ForbiddenException,HttpException{
 		throw new MethodNotAllowedException();
 	}
 
-	/** Gets a feed.
+	/** Gets some beans.
+	 * <p>
+	 * If you don't want to set fields in the feed that is sent to the client,
+	 * override this method and don't override getFeed.
+	 * <p>
+	 * If you do want to set fields in the feed, override only getFeed and make it do
+	 * everything, or override both, in getFeed first calling super.getFeed.
+	 * 
 	 * @param url
-	 * @param user If the client has sent username and password in http basic
-	 * 	authentication, here they are. Otherwise null. The SAO may throw an
-	 * 	exception to signal that the client is not correctly authenticated.
 	 * @return Some beans from the store that match the parameters
+	 * 
 	 * @exception RuntimeException always. Must override if you want retrieval.
+	 * 
 	 * @throws NotAuthorizedException The SAO requires the client to be authenticated,
 	 * 	but the client has not provided username and password.
 	 * @throws ForbiddenException The SAO requires the client to be authenticated, but
@@ -102,16 +101,51 @@ public abstract class AbstractAtomSAO<T extends AtomBean> implements AtomSAO<T> 
 	 * 	wrong in processing the request and that the servlet should reply 500 Internal
 	 * 	Server Error to the client.
 	 * */
-	public Feed get(GDataURL url, PasswordCredential user) throws NotAuthorizedException, ForbiddenException, InternalServerErrorException,HttpException{
+	public List<T> get(GDataURL url)throws NotAuthorizedException, ForbiddenException, InternalServerErrorException,HttpException{
 		throw new MethodNotAllowedException();
+	}
+
+	/** Gets a feed.
+	 * <p>
+	 * See get() for which method to override.
+	 * <p>
+	 * This implementation calls get() to get the beans, then constructs a boring feed
+	 * and returns it. So if you needn't set fields in the feed, you only override get().
+	 * 
+	 * @param url
+	 * @return Some beans from the store that match the parameters
+	 * 
+	 * @exception MethodNotAllowedException. Must override get() or getFeed() if you want retrieval.
+	 * @throws NotAuthorizedException The SAO requires the client to be authenticated,
+	 * 	but the client has not provided username and password.
+	 * @throws ForbiddenException The SAO requires the client to be authenticated, but
+	 * 	the username and password provided by the client could not be validated by the
+	 * 	SAO.
+	 * @throws InternalServerErrorException The SAO signals that something has gone
+	 * 	wrong in processing the request and that the servlet should reply 500 Internal
+	 * 	Server Error to the client.
+	 * */
+	public Feed getFeed(GDataURL url) throws NotAuthorizedException, ForbiddenException, InternalServerErrorException,HttpException{
+		Style style=Style.parseStyle(url.getParameter("style"));
+		Feed feed=new Feed();
+		//Set standard fields in the feed.
+		
+		List<T>beans=this.get(url);//MethodNotAllowedException
+		for(T bean : beans){
+			try{
+				Entry entry=bean.toEntry(false, style);//Exception
+				feed.addEntry(entry);
+			}catch(Exception e){
+				throw new InternalServerErrorException(e);
+			}
+		}
+		
+		return feed;
 	}
 
 	/** Remove a bean from the store.
 	 * @param id The id of the bean to be removed.
 	 * @param etag Must be current, else throw PreconditionFailedException
-	 * @param user If the client has sent user name and password in http basic
-	 * 	authentication, here they are. Otherwise null. The SAO may throw an
-	 * 	exception to signal that the client is not correctly authenticated.
 	 * @exception RuntimeException always. Must override if you want deletion.
 	 * @throws NotAuthorizedException The SAO requires the client to be authenticated,
 	 * 	but the client has not provided user name and password.
@@ -119,7 +153,7 @@ public abstract class AbstractAtomSAO<T extends AtomBean> implements AtomSAO<T> 
 	 * 	the user name and password provided by the client could not be validated by the
 	 * 	SAO.
 	 * */
-	public void delete(String id, String etag, PasswordCredential user) throws NotAuthorizedException, ForbiddenException,HttpException{
+	public void delete(String id, String etag) throws NotAuthorizedException, ForbiddenException,HttpException{
 		throw new MethodNotAllowedException();
 	}
 
@@ -134,14 +168,14 @@ public abstract class AbstractAtomSAO<T extends AtomBean> implements AtomSAO<T> 
 	 * 	for subclasses that only implement Atom syndication, not Atom publishing.
 	 * */
 	public T toAtomBean(Entry entry){
-		throw new RuntimeException("Not implemented by " + this.getClass());
+		throw new NotImplementedException("Not implemented by " + this.getClass());
 	}
 
 	// Authentication -------------------------------------------------------
 
 	/** The authenticated user, as Principal, or null if the user is not authenticated. */
 	public Principal getCallerPrincipal(){
-		Principal principal=PrincipalFactory.getCallerPrincipal();
+		Principal principal=PrincipalFactory.getCallerPrincipal();//Gets it from the request?
 		return principal;
 	}
 }

@@ -67,7 +67,7 @@ public interface AtomBean{
 	 * 	define the XML elements that come with the chosen style.
 	 * @param style
 	 * @return Entry
-	 * @exception Exception Can I refine this?
+	 * @exception Exception XXX Can I refine this?
 	 * */
 	Entry toEntry(boolean root, Style style) throws Exception;
 
