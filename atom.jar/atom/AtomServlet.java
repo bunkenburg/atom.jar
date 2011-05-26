@@ -25,7 +25,6 @@ import inspiracio.servlet.http.IHttpServlet;
 import inspiracio.servlet.http.NotAuthorizedException;
 import inspiracio.servlet.http.NotFoundException;
 import inspiracio.servlet.http.PreconditionFailedException;
-import inspiracio.transaction.TransactionFactory;
 import inspiracio.util.Base64Coder;
 import inspiracio.util.Time;
 import inspiracio.xml.DOM;
@@ -35,17 +34,10 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 
-import javax.naming.NamingException;
 import javax.resource.spi.security.PasswordCredential;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.transaction.HeuristicMixedException;
-import javax.transaction.HeuristicRollbackException;
-import javax.transaction.NotSupportedException;
-import javax.transaction.RollbackException;
-import javax.transaction.SystemException;
-import javax.transaction.UserTransaction;
 import javax.xml.transform.TransformerException;
 
 import org.apache.log4j.Logger;
@@ -148,13 +140,15 @@ public abstract class AtomServlet extends IHttpServlet{
 	 * Do all of this within a transaction. Thereby, the delegate classes can
 	 * open a DB connection, wrap it in an iterator that delivers entries, and
 	 * put the iterator in the feed, in order to implement streaming.
+	 * ---No, I take out the transaction stuff because GAE doesn't have it.
 	 *
 	 * @param request
 	 * @param response
 	 * @exception IOException */
 	@Override protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
 		try{
-			UserTransaction tx=null;
+			//UserTransaction tx=null;
+			@SuppressWarnings("unused")
 			boolean committed=false;
 			try{
 				//Serve an Atom feed.
@@ -162,8 +156,8 @@ public abstract class AtomServlet extends IHttpServlet{
 				//PasswordCredential user=this.getUser(request);
 
 				//Start transaction
-				tx=TransactionFactory.getUserTransaction();//NamingException
-				tx.begin();//NotSupportedException, SystemException
+				//tx=TransactionFactory.getUserTransaction();//NamingException
+				//tx.begin();//NotSupportedException, SystemException
 
 				Feed feed=this.get(url);//HttpException
 				if(feed==null){
@@ -186,10 +180,11 @@ public abstract class AtomServlet extends IHttpServlet{
 				os.close();
 
 				//Commit
-				tx.commit();//javax.transaction.RollbackException, javax.transaction.HeuristicMixedException, javax.transaction.HeuristicRollbackException, java.lang.SecurityException, java.lang.IllegalStateException, javax.transaction.SystemException;
+				//tx.commit();//javax.transaction.RollbackException, javax.transaction.HeuristicMixedException, javax.transaction.HeuristicRollbackException, java.lang.SecurityException, java.lang.IllegalStateException, javax.transaction.SystemException;
 				committed=true;
 			}
 
+			/*
 			//Bugs or deployment errors: should never happen.
 			catch (NamingException ne){
 				//Couldn't get transaction.
@@ -203,10 +198,12 @@ public abstract class AtomServlet extends IHttpServlet{
 				//Couldn't get transaction.
 				throw new ServletException(se);
 			}
+			*/
 			catch (TransformerException te){
 				throw new ServletException(te);
 			}
-
+		
+			/*
 			//Bug or problem in the tx manager: should never happen.
 			catch (HeuristicRollbackException hre){
 				//Tx already rolled back.
@@ -220,6 +217,7 @@ public abstract class AtomServlet extends IHttpServlet{
 				//Tx already rolled back.
 				throw new ServletException(re);
 			}
+			*/
 
 			//Application exceptions: request is bad or SAO won't deliver.
 			catch(BadRequestException bre){
@@ -248,16 +246,21 @@ public abstract class AtomServlet extends IHttpServlet{
 			}
 
 			finally{
+				/*
 				if(!committed && tx!=null)
 					tx.rollback();
+				*/
 			}
 		}
 
+		/*
 		//Bugs or deployment errors
 		catch(SystemException se){
 			//Tx manager is broken. Bug.
 			throw new ServletException(se);
 		}
+		*/
+		finally{}
 	}
 
 	/** Process an insert or a batch.
@@ -552,145 +555,6 @@ public abstract class AtomServlet extends IHttpServlet{
 			this.log(status+"", e);//If an error-page declaration has been made for the web application corresponding to the status code passed in, it will be served back in preference to the suggested message parameter.
 		}
 	}
-
-	/** Process a BATCH request, in a transaction.
-	 * <p>
-	 * The implementation here gets the transaction from JNDI. An alternative implementation could
-	 * delegate to a stateless session bean. In either case, there's a lot of work to get the exceptions
-	 * and http response status code and messages right.
-	 *
-	 * @param request
-	 * @param response
-	 * @param root The root element of the XM received in the request. It's a feed.
-	 *
-	private void doOldBatch(HttpServletRequest request, HttpServletResponse response,Element root)throws ServletException,IOException{
-		try{//tx stuff
-			UserTransaction tx=null;
-			boolean committed=false;
-			try{
-				PasswordCredential user=this.getUser(request);
-				GDataURL url=new GDataURL(request);
-
-				Feed feed=Feed.parse(root);
-				Entry[] entries=feed.getEntries().toArray(new Entry[]{});
-
-				//Process the entries in the array.
-
-				//Start transaction
-				tx=TransactionFactory.getUserTransaction();//NamingException
-				tx.begin();//NotSupportedException, SystemException
-
-				for(int i=0; i<entries.length; i++){
-					Entry e=entries[i];
-					Entry result=null;
-					//For now, assume batch operation is always "insert".
-					//batchOperation = entry.getBatchOperation();
-					//batchId=entry.getBatchId();
-					//switch(batchOperation){
-					//case INSERT:
-					String slug=null;//No slug in a batch.
-					result=this.insert(url, slug, e, user);
-					//result will have superfluous XML namespaces. Superfluous because it's not root element.
-					//result.setBatchStatus(201, "Created");
-					//result.setBatchId(batchId);
-					//break;
-					//case UPDATE: ... break;
-					//case QUERY: ... break;
-					//case DELETE: ... break;
-					//}
-					entries[i]=result;//in-place processing of the array
-				}
-
-				//Make the result feed
-				Feed resultFeed=new Feed();
-				//... result feed attributes and minor elements ...
-				resultFeed.addEntry(entries);//also updates the namespaces
-
-				//Send the result feed ...
-				response.setStatus(200);//Ok
-				response.setContentType("application/atom+xml; charset=UTF-8");
-				OutputStream out = response.getOutputStream();
-				if(url.getParameters().getPrettyprint())
-					feed.setPrettyprint(true);
-				resultFeed.write(out);//TransformerException
-				out.flush();
-				out.close();
-
-				//Commit
-				tx.commit();//javax.transaction.RollbackException, javax.transaction.HeuristicMixedException, javax.transaction.HeuristicRollbackException, java.lang.SecurityException, java.lang.IllegalStateException, javax.transaction.SystemException;
-				committed=true;
-			}
-
-			//Bugs or deployment errors
-			catch (TransformerException te){
-				throw new ServletException(te);//Writing result XML has failed.
-			}
-			catch (NamingException ne){
-				throw new ServletException(ne);//Getting tx has failed.
-			}
-			catch(NotSupportedException nse){
-				throw new ServletException(nse);//Creating new transaction when there's already a tx. Bug.
-			}
-
-			//Transaction manager exception: database failure or bug.
-			catch (HeuristicMixedException hme){
-				//A heuristic decision was made and some relevant updates have been committed while others have been rolled back.
-				this.log("heuristic mixed exception", hme);
-				throw new ServletException(hme);
-			}
-			catch (HeuristicRollbackException hre){
-				//Thrown to indicate that a heuristic decision was made and that all relevant updates have been rolled back.
-				this.log("heuristic rollback exception", hre);
-				throw new ServletException(hre);
-			}
-			catch (RollbackException re){
-				//Thrown to indicate that the transaction has been rolled back rather than committed.
-				this.log("rollback exception", re);
-				throw new ServletException(re);
-			}
-
-			//Application exceptions: the SAOs refuse or fail to do something.
-			catch (NotAuthorizedException nae){
-				//Client has not sent credentials: challenge the client.
-				String realm = nae.getRealm();
-				response.addHeader("WWW-Authenticate", "Basic realm=\"" + realm + "\"");
-				response.sendError(401, "Not authorized");
-				String msg = "Challenging Http-BASIC-authentication for " + realm + ".";
-				abort(msg);
-			}
-			catch (ForbiddenException fe){
-				String msg = fe.getMessage();
-				response.sendError(403, msg);
-				abort(msg);
-			}
-			catch (HttpException nae){//Some other http exception.
-				int status=nae.getStatus();
-				String message = nae.getLocalizedMessage();
-				response.sendError(status, message);
-				this.log(status+"", nae);//If an error-page declaration has been made for the web application corresponding to the status code passed in, it will be served back in preference to the suggested message parameter.
-			}
-
-			//Any other exception: some bug or unexpected problem.
-			catch (Exception e){
-				int status=500;
-				String message = e.getLocalizedMessage();
-				response.sendError(500, message);
-				this.log(status+"", e);//If an error-page declaration has been made for the web application corresponding to the status code passed in, it will be served back in preference to the suggested message parameter.
-			}
-
-			finally{
-				if(!committed && tx!=null)
-					tx.rollback();
-			}
-		}
-
-		//Bugs or deployment errors
-		catch(SystemException se){
-			//Tx manager is broken. Bug.
-			throw new ServletException(se);
-		}
-	}
-	*/
 
 	//The abstract methods that the subclass must implement. --------------------
 

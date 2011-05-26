@@ -19,8 +19,12 @@ package inspiracio.atom;
 
 import inspiracio.servlet.http.BadRequestException;
 import inspiracio.servlet.http.InternalServerErrorException;
+import inspiracio.servlet.jsp.PageContextFactory;
 
+import java.security.Principal;
 import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
 
 import atom.Category;
 import atom.gdata.GDataURL;
@@ -54,6 +58,12 @@ class AtomSAOFactory{
 			Object o=clazz.newInstance();//IllegalAccessException, InstantiationException
 			@SuppressWarnings("unchecked")
 			AtomSAO<AtomBean> sao=(AtomSAO<AtomBean>)o;
+			
+			//Tell the SAO who is authenticated.
+			HttpServletRequest request=(HttpServletRequest)PageContextFactory.getPageContext().getRequest();
+			Principal principal=request.getUserPrincipal();
+			sao.setCallerPrincipal(principal);
+
 			return sao;
 		}catch(ClassNotFoundException cnfe){
 			throw new InternalServerErrorException(cnfe);

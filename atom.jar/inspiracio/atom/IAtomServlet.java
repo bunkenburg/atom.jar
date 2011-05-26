@@ -110,6 +110,7 @@ public class IAtomServlet extends AtomServlet{
 		}
 		entries=null;//help gc
 		logger.info(iterationCounter - 1 + " entries preprocessed");
+		
 		sao.insert(url, beans);
 	}
 
@@ -158,4 +159,6 @@ public class IAtomServlet extends AtomServlet{
 		}
 	}
 
+	//Helpers ----------------------------------------------------------
+	
 }
