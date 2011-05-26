@@ -41,7 +41,6 @@ import java.io.OutputStream;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.net.HttpCookie;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
@@ -81,9 +80,8 @@ public final class RemoteProxyFactory implements ProxyFactory, PageContextMaker,
 	/** The logged-in principal, if there is one. */
 	private Principal principal=null;
 	
-	/** The cookies to include in every request,
-	 * in a map be cookie name. */
-	private Map<String,HttpCookie>cookies=new HashMap<String,HttpCookie>();
+	/** The cookies to include in every request, in a map. */
+	private Map<String,String>cookies=new HashMap<String,String>();
 
 	/** The special page context object.
 	 * Every thread that executes ProxyFactory.get(...) must have its
@@ -214,9 +212,8 @@ public final class RemoteProxyFactory implements ProxyFactory, PageContextMaker,
 
 	/** Sets this cookie to every request. 
 	 * Overwrites previously set cookie with same name. */
-	public void setCookie(HttpCookie cookie){
-		String name=cookie.getName();
-		this.cookies.put(name, cookie);
+	public void setCookie(String name, String value){
+		this.cookies.put(name, value);
 	}
 	
 	/** Sets the logged-in user principal. */
@@ -352,12 +349,14 @@ public final class RemoteProxyFactory implements ProxyFactory, PageContextMaker,
 		if(!this.cookies.isEmpty()){
 			StringBuilder value=new StringBuilder();
 			boolean first=true;
-			for(HttpCookie cookie : this.cookies.values()){
+			for(Map.Entry<String, String> entry : this.cookies.entrySet()){
+				String name=entry.getKey();
+				String v=entry.getValue();
 				if(!first)
 					value.append("; ");
-				value.append(cookie.getName());
+				value.append(name);
 				value.append("=");
-				value.append(cookie.getValue());
+				value.append(v);
 				first=false;
 			}
 			String s=value.toString();
