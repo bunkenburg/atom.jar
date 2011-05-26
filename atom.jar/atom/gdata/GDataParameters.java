@@ -46,7 +46,7 @@ import java.util.TreeMap;
  * and decoded.
  * </p>
  * */
-public class GDataParameters extends StringMap {
+public class GDataParameters extends StringMap{
 	/* Should override entries() and similar so that the id also appears
 	 * in these collections.
 	 */
@@ -128,7 +128,7 @@ public class GDataParameters extends StringMap {
 	 */
 	public void setAlt(String alt){this.put("alt", alt);}
 
-	public String getAuthor() {return this.get("author");}
+	public String getAuthor(){return this.get("author");}
 
 	/** Entry author.
 	 * The service returns entries where the author name and/or email 
@@ -136,17 +136,17 @@ public class GDataParameters extends StringMap {
 	 * Default null means select all. 
 	 * @param author the author to set
 	 */
-	public void setAuthor(String author) {this.put("author", author);}
+	public void setAuthor(String author){this.put("author", author);}
 
 	/** See private field id.
 	 * @return the id
 	 */
-	public String getId() {return id;}
+	public String getId(){return id;}
 
 	/** Gets the id as an int.
 	 * @return If there is not id or it cannot be parsed as int, null.
 	 */
-	public Integer getIdInt() {
+	public Integer getIdInt(){
 		try{
 			return Integer.parseInt(this.id);//NumberFormatException
 		}catch(NumberFormatException nfe){
@@ -158,7 +158,7 @@ public class GDataParameters extends StringMap {
 	 * when parsing a URL to make an instance of GDataParameter, you must
 	 * parse the entry id explicitly and then call this method. 
 	 * @param id */
-	public void setId(String id){this.id = id;}
+	public void setId(String id){this.id=id;}
 	
 	/** Sets the entry ID as int. 
 	 * Equivalent to setId(Integer.toString(id)).
@@ -293,7 +293,7 @@ public class GDataParameters extends StringMap {
 	/** See setQ(String).
 	 * @return the q or null if none has been set.
 	 */
-	public String getQ() {return this.get("q");}
+	public String getQ(){return this.get("q");}
 
 	/** Full-text query string. 
 	 * <ul>
@@ -306,7 +306,7 @@ public class GDataParameters extends StringMap {
 	 * Default null means select all.
 	 * @param q the q to set. Not null.
 	 */
-	public void setQ(String q) {this.put("q", q);}
+	public void setQ(String q){this.put("q", q);}
 
 	/** See setStartIndex(int).
 	 * @return the startIndex which is 1 if none has been set.

@@ -861,16 +861,16 @@ public class HttpURL implements Cloneable, Comparable<HttpURL> {
 		char connector='?';
 		Iterator<Map.Entry<String,String>> entries=parameters.entrySet().iterator();
 		while(entries.hasNext()){
-			Map.Entry<String,String> entry = entries.next();
-			String key = entry.getKey().toString();
-			String value = entry.getValue().toString();
-			key = UTF8URLEncoder.encode(key);
-			value = UTF8URLEncoder.encode(value);
+			Map.Entry<String,String> entry=entries.next();
+			String key=entry.getKey().toString();
+			String value=entry.getValue().toString();
+			key=UTF8URLEncoder.encode(key);
+			value=UTF8URLEncoder.encode(value);
 			this.url.append(connector);
 			this.url.append(key);
 			this.url.append("=");
 			this.url.append(value);
-			connector = '&';
+			connector='&';
 		}
 	}
 	

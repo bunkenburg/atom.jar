@@ -17,6 +17,8 @@
  */
 package inspiracio.atom;
 
+import inspiracio.lang.NotImplementedException;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,7 +28,7 @@ import atom.gdata.Style;
 /** For convenience, a superclass for implementations of AtomBean.
  * @author BARCELONA\alexanderb
  */
-public abstract class AbstractAtomBean implements AtomBean {
+public abstract class AbstractAtomBean implements AtomBean{
 
 	//ETag ------------------------------------------------------------
 
@@ -41,6 +43,11 @@ public abstract class AbstractAtomBean implements AtomBean {
 	 * String the quotes are escaped; but this method returns just the String.
 	 * The clients of the method take care of quoting and escaping. */
 	@Override public String getETag(){return etag;}
+	
+	/** Returns the key that we can use to store the bean in the a local session store.
+	 * For example "form-12".
+	 * The implementation here throws NotImplementedException. */
+	@Override public String getKey(){throw new NotImplementedException();}
 
 	/** If the ETag of this object is an int, returns the int.
 	 * @exception NumberFormatException ETag is not an int. */

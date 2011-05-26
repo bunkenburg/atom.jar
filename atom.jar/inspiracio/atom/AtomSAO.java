@@ -24,8 +24,8 @@ import inspiracio.servlet.http.InternalServerErrorException;
 import inspiracio.servlet.http.NotAuthorizedException;
 import inspiracio.servlet.http.PreconditionFailedException;
 
+import java.security.Principal;
 import java.util.List;
-
 
 import atom.Entry;
 import atom.Feed;
@@ -114,5 +114,9 @@ public interface AtomSAO<T extends AtomBean>{
 	 * @param entry
 	 * @return The parsed bean */
 	T toAtomBean(Entry entry);
-
+	
+	//Authentication ----------------------------------------------------------
+	
+	void setCallerPrincipal(Principal p);
+	Principal getCallerPrincipal();
 }

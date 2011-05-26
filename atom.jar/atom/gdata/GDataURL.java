@@ -30,7 +30,9 @@ import atom.Category;
 /** A URL according to GData spec. 
  * See http://code.google.com/apis/gdata/reference.html#query-requests
  * */
-public class GDataURL extends HttpURL {
+public class GDataURL extends HttpURL{
+	
+	//Constructors ---------------------------------------------
 	
 	/** Construct the URL for the current request. */
 	//public GDataURL(){
@@ -55,9 +57,11 @@ public class GDataURL extends HttpURL {
 	
 	/** Construct the URL from a String 
 	 * @param url String of complete URL */
-	protected GDataURL(String url){
+	public GDataURL(String url){
 		super(url);
 	}
+	
+	//Accessors ----------------------------------------------
 	
 	/** Gets the categories in the URL. 
 	 * @return list of categories, may be empty */
@@ -105,7 +109,7 @@ public class GDataURL extends HttpURL {
 	 * 	Dates must be in RTC 3339 format. 
 	 * */
 	//public Map getParameters() throws RuntimeException {
-	public GDataParameters getParameters() throws RuntimeException {
+	public GDataParameters getParameters()throws RuntimeException {
 		Map<String, String> ps=super.getParameters();
 		GDataParameters gdp=new GDataParameters(ps);
 		

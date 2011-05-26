@@ -18,7 +18,6 @@
 package inspiracio.atom;
 
 import inspiracio.lang.NotImplementedException;
-import inspiracio.security.PrincipalFactory;
 import inspiracio.servlet.http.BadRequestException;
 import inspiracio.servlet.http.ForbiddenException;
 import inspiracio.servlet.http.HttpException;
@@ -41,8 +40,17 @@ import atom.gdata.Style;
  * @author BARCELONA\alexanderb
  *
  */
-public abstract class AbstractAtomSAO<T extends AtomBean> implements AtomSAO<T> {
+public abstract class AbstractAtomSAO<T extends AtomBean> implements AtomSAO<T>{
+	
+	//State ------------------------------------------------------------------
+	
+	/** The authenticated principal for the operations */
+	private Principal principal;
 
+	//Constructors -----------------------------------------------------------
+	
+	protected AbstractAtomSAO(){}
+	
 	//The ReST operations ----------------------------------------------------
 
 	/** Create a new bean.
@@ -174,8 +182,12 @@ public abstract class AbstractAtomSAO<T extends AtomBean> implements AtomSAO<T> 
 	// Authentication -------------------------------------------------------
 
 	/** The authenticated user, as Principal, or null if the user is not authenticated. */
-	public Principal getCallerPrincipal(){
-		Principal principal=PrincipalFactory.getCallerPrincipal();//Gets it from the request?
-		return principal;
+	@Override public Principal getCallerPrincipal(){
+		//Principal principal=PrincipalFactory.getCallerPrincipal();//Gets it from the request?
+		return this.principal;
+	}
+	
+	@Override public void setCallerPrincipal(Principal principal){
+		this.principal=principal;
 	}
 }
