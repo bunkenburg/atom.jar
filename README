@@ -1,3 +1,7 @@
 atom.jar
 
 Java-classes for GData/Atom on client and server.
+
+You can download the installable atom.jar from /stage/atom.jar. It depends on the two JARs in lib/: gdata-core-1.0.jar and log4j-boot.jar.
+
+You can get the javadoc from stage/atom_javadoc.zip.
