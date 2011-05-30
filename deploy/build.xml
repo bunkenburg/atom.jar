@@ -3,13 +3,36 @@
 
 	<taskdef resource="net/sf/antcontrib/antlib.xml" />
 	
+	<!--Compile the three groups-->
 	<target name="compile" description="Compiles atom.jar/.">
-		<!--Compile. Don't use anything that Eclipse has compiled.-->
-	    <javac destdir="atom.jar/" debug="true" includeantruntime="false">
-    		<src path="atom.jar/"/>
+
+		<!--Common. Depends only on gdata-core-1.0.jar and log4j-boot.jar.-->
+		<echo>javac atom-common</echo>
+	    <javac destdir="atom-common/src/" debug="true" includeantruntime="false">
+    		<src path="atom-common/src/"/>
 	    	<classpath>
-    			<fileset dir="compile/"><include name="**/*.jar"/></fileset>
     			<fileset dir="lib/"><include name="**/*.jar"/></fileset>
+    		</classpath>
+    	</javac>
+		
+		<!--Client. Depends on atom-common, gdata-core-1.0.jar and log4j-boot.jar.-->
+		<echo>javac atom-client</echo>
+	    <javac destdir="atom-client/src/" debug="true" includeantruntime="false">
+    		<src path="atom-client/src/"/>
+	    	<classpath>
+    			<pathelement location="atom-common/src/"/>
+    			<fileset dir="lib/"><include name="**/*.jar"/></fileset>
+    		</classpath>
+    	</javac>
+		
+		<!--Server. Depends on atom-common, gdata-core-1.0.jar, log4j-boot.jar, but also jee-5.jar.-->
+		<echo>javac atom-server</echo>
+	    <javac destdir="atom-server/src/" debug="true" includeantruntime="false">
+    		<src path="atom-server/src/"/>
+	    	<classpath>
+    			<pathelement location="atom-common/src/" />
+    			<fileset dir="lib/"><include name="**/*.jar"/></fileset>
+    			<fileset dir="atom-server/compile/"><include name="**/*.jar"/></fileset>
     		</classpath>
     	</javac>
 	</target>
@@ -18,17 +41,33 @@
 		<delete><fileset dir="atom.jar/" includes="**/*.class"/></delete>
 	</target>
 				
+	<!--Make atom-server.jar and atom-client.jar-->
 	<target name="build" description="Builds a fresh stage/atom.jar." depends="compile">
-		<!--Make the JAR with generated MANIFEST.MF-->
+		<!--Make atom-server.jar with generated MANIFEST.MF, from atom-common and atom-server.-->
 		<loadfile property="version" srcfile="version.txt" />
 		<mkdir dir="stage"/>
-		<jar destfile="stage/atom.jar" basedir="atom.jar" index="true">
+		<jar destfile="stage/atom-server.jar" index="true">
 			<manifest>
 				<attribute name="Built-By" value="${user.name}"/>
 				<attribute name="Implementation-Vendor" value="alex@inspiracio.cat"/>
 				<attribute name="Implementation-Title" value="atom.jar"/>
 				<attribute name="Implementation-Version" value="${version}"/>
 			</manifest>
+			<fileset dir="atom-common/src/"></fileset>
+			<fileset dir="atom-server/src/"></fileset>
+		</jar>
+		<!--Make atom-client.jar with generated MANIFEST.MF-->
+		<loadfile property="version" srcfile="version.txt" />
+		<mkdir dir="stage"/>
+		<jar destfile="stage/atom-client.jar" index="true">
+			<manifest>
+				<attribute name="Built-By" value="${user.name}"/>
+				<attribute name="Implementation-Vendor" value="alex@inspiracio.cat"/>
+				<attribute name="Implementation-Title" value="atom.jar"/>
+				<attribute name="Implementation-Version" value="${version}"/>
+			</manifest>
+			<fileset dir="atom-common/src/"></fileset>
+			<fileset dir="atom-client/src/"></fileset>
 		</jar>
 	</target>
 		
@@ -55,30 +94,61 @@
 
 	<target name="javadoc">
 		<loadfile property="version" srcfile="version.txt" />
-		<copy file="atom.jar/overview.html" todir="stage/"/>
+		<copy file="atom-common/src/overview.html" todir="stage/"/>
 		<replace file="stage/overview.html" token="$${version}" value="${version}" />
+
+		<!--atom-client-->
 		<javadoc 
-			sourcepath="atom.jar/" 
-			destdir="doc/" 
+			destdir="doc/atom-client/" 
 			overview="stage/overview.html"
 			version="true"
 			use="true"
 			author="true"
-			windowtitle="atom.jar ${version}"
-			doctitle="atom.jar ${version}"
-			header="atom.jar ${version}"
-			footer="atom.jar ${version}"
+			windowtitle="atom-client.jar ${version}"
+			doctitle="atom-client.jar ${version}"
+			header="atom-client.jar ${version}"
+			footer="atom-client.jar ${version}"
 		>
+	    	<sourcepath>
+    			<pathelement location="atom-common/src/"></pathelement>
+    			<pathelement location="atom-client/src/"></pathelement>
+    		</sourcepath>
 	    	<classpath>
-    			<fileset dir="compile/"><include name="**/*.jar"/></fileset>
     			<fileset dir="lib/"><include name="**/*.jar"/></fileset>
     		</classpath>
 			<link href="http://java.sun.com/javase/6/docs/api/"/>
 			<link href="http://java.sun.com/javaee/5/docs/api/"/>
 			<bottom></bottom>
 		</javadoc>
-		<delete file="stage/overview.html"></delete>
-		<zip destfile="stage/atom_javadoc.zip" basedir="doc/" />
+		<zip destfile="stage/atom-client-javadoc.zip" basedir="doc/atom-client/" />
+
+		<!--atom-server-->
+		<javadoc 
+			destdir="doc/atom-server/" 
+			overview="stage/overview.html"
+			version="true"
+			use="true"
+			author="true"
+			windowtitle="atom-server.jar ${version}"
+			doctitle="atom-server.jar ${version}"
+			header="atom-server.jar ${version}"
+			footer="atom-server.jar ${version}"
+		>
+	    	<sourcepath>
+    			<pathelement location="atom-common/src/"></pathelement>
+    			<pathelement location="atom-server/src/"></pathelement>
+    		</sourcepath>
+	    	<classpath>
+    			<fileset dir="atom-server/compile/"><include name="**/*.jar"/></fileset>
+    			<fileset dir="lib/"><include name="**/*.jar"/></fileset>
+    		</classpath>
+			<link href="http://java.sun.com/javase/6/docs/api/"/>
+			<link href="http://java.sun.com/javaee/5/docs/api/"/>
+			<bottom></bottom>
+		</javadoc>
+		<zip destfile="stage/atom-server-javadoc.zip" basedir="doc/atom-server/" />
+		<!--delete file="stage/overview.html"></delete-->
+		<zip destfile="stage/atom-server-javadoc.zip" basedir="doc/atom-server/" />
 	</target>
 
 </project>

@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="src" path="atom.jar"/>
-	<classpathentry kind="src" path="atom.jar_test"/>
 	<classpathentry kind="lib" path="lib/log4j-boot.jar"/>
 	<classpathentry kind="lib" path="lib/gdata-core-1.0.jar"/>
 	<classpathentry kind="lib" path="compile/jee-5.jar"/>
