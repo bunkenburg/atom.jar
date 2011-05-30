@@ -31,7 +31,7 @@ import org.apache.log4j.Logger;
 
 /**
  *
- * @author iparraga
+ * @author alex@inspiracio.com
  */
 public abstract class IHttpServlet extends HttpServlet {
 

@@ -95,7 +95,7 @@ public class GDataParameters extends StringMap{
 	//Methods ----------------------------------------------------
 	
 	/** Clear all parameters */
-	@Override public void clear() {
+	@Override public void clear(){
 		super.clear();
 		this.id = null;
 	}
@@ -217,10 +217,10 @@ public class GDataParameters extends StringMap{
 	 * @return the publishedMax
 	 */
 	public Timestamp getPublishedMax() {
-		String s = this.get("published-max");
-		if (s==null){
+		String s=this.get("published-max");
+		if(s==null){
 			return null;
-		} else {
+		}else{
 			return XMLDate.parse(s);
 		}
 	}
@@ -322,7 +322,7 @@ public class GDataParameters extends StringMap{
 
 	/** If the URL has a style parameter, its value. Else the default style plain. */
 	public Style getStyle(){
-		String s = this.get("style");
+		String s=this.get("style");
 		return Style.parseStyle(s);
 	}
 		
@@ -352,7 +352,7 @@ public class GDataParameters extends StringMap{
 	 * could have taken place in between the two queries.
 	 * </p>
 	 * Default value = 1. 
-	 * @param startIndex the startIndex to set. Must be parseable as a
+	 * @param startIndex the startIndex to set. Must be parsable as a
 	 * positive integer. Not null.
 	 */
 	public void setStartIndex(String startIndex) {
@@ -439,7 +439,7 @@ public class GDataParameters extends StringMap{
 	 * @param updatedMin the updatedMin to set,
 	 * must be in RTC 3339 format. Not null.
 	 */
-	public void setUpdatedMin(String updatedMin) {
+	public void setUpdatedMin(String updatedMin){
 		this.put("updated-min", updatedMin);
 	}
 
@@ -448,7 +448,7 @@ public class GDataParameters extends StringMap{
 	 * human readable (pretty printed). Default: prettyprint=false
 	 * */
 	public boolean getPrettyprint(){
-		String s = this.get("prettyprint");
+		String s=this.get("prettyprint");
 		return Boolean.parseBoolean(s);//default: false
 	}
 

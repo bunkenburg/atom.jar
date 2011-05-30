@@ -193,7 +193,7 @@ public class HttpURL implements Cloneable, Comparable<HttpURL> {
 			buffer.append(queryString);
 		}
 		this.url=new StringBuilder(buffer.toString());
-		this.normalizePort();
+		this.normalisePort();
 	}
 	
 	/** Make an HttpURL from a complete URL, an absolute URL, or
@@ -316,7 +316,7 @@ public class HttpURL implements Cloneable, Comparable<HttpURL> {
 	 * @param completeURL */
 	public void setCompleteURL(StringBuilder completeURL){
 		this.url=completeURL;
-		this.normalizePort();//maybe remove superfluous standard port
+		this.normalisePort();//maybe remove superfluous standard port
 	}
 	
 	/** Set this to represent the given complete URL.
@@ -325,7 +325,7 @@ public class HttpURL implements Cloneable, Comparable<HttpURL> {
 	 * @param completeURL */
 	public void setCompleteURL(String completeURL){
 		this.url=new StringBuilder(completeURL);
-		this.normalizePort();//maybe remove superfluous standard port
+		this.normalisePort();//maybe remove superfluous standard port
 	}
 	
 	/** Interprets the given relative URL relative to
@@ -586,14 +586,6 @@ public class HttpURL implements Cloneable, Comparable<HttpURL> {
 		return domain;
 	}	
 	
-	/** Put in a normal host if the host has 
-	 * "*.*.inspiracioX.cat".
-	 * This method must be updated when we do more interesting things
-	 * with URLs.
-	 * */
-	public void normalizeHost(){
-	}
-
 	/** Sets the host, leaving everything else the same.
 	 * @param host
 	 */
@@ -669,8 +661,7 @@ public class HttpURL implements Cloneable, Comparable<HttpURL> {
 		String path = this.getPath();//Starts with "/"
 		
 		//path = "/" + virtualPath + path.substring(0) + this.getFile()
-		//Optimization: In Java 5, use StringBuilder
-		StringBuffer buffer = new StringBuffer(path);
+		StringBuilder buffer = new StringBuilder(path);
 		buffer.insert(1, virtualPath);//Insert after initial "/".
 		String file = this.getFile();
 		buffer.append(file);
@@ -886,7 +877,7 @@ public class HttpURL implements Cloneable, Comparable<HttpURL> {
 		int portEnd = pathBegin;
 		String portString = ":" + port;
 		this.url.replace(portBegin, portEnd, portString);//StringIndexOutOfBoundsException
-		this.normalizePort();//Remove the port if it is standard
+		this.normalisePort();//Remove the port if it is standard
 	}
 	
 	/** Gets the port of the URL. 
@@ -914,7 +905,7 @@ public class HttpURL implements Cloneable, Comparable<HttpURL> {
 	
 	/** If there is an explicit port in the URL and it is the standard
 	 * port for the protocol, remove the port. */
-	private void normalizePort(){
+	private void normalisePort(){
 		int hostBegin=this.getHostBegin();
 		int colon=this.url.indexOf(":", hostBegin);
 		int pathBegin=this.getPathBegin();
@@ -967,7 +958,7 @@ public class HttpURL implements Cloneable, Comparable<HttpURL> {
 	public void setScheme(String scheme){
 		int schemeEnd=this.url.indexOf("://");
 		this.url.replace(0, schemeEnd, scheme);
-		this.normalizePort();//Maybe now the port has become superfluous.
+		this.normalisePort();//Maybe now the port has become superfluous.
 	}
 	
 	/** Replaces "/folder/.." by "".

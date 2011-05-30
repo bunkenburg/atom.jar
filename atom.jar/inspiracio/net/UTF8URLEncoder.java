@@ -71,7 +71,6 @@ public class UTF8URLEncoder {
 	 * 	<li>if nothing survives, return "-".
 	 * </ol>
 	 * See URL spec in http://www.ietf.org/rfc/rfc2396.txt.
-	 * See trac http://bcnserver/trac/area-tecnica/ticket/3819.
 	 * See class java.net.IDN for an alternative approach.
 	 * @param s 
 	 * @return URL-encoded form */
@@ -162,8 +161,7 @@ public class UTF8URLEncoder {
 	 * </ul>
 	 * Does not accept * asterisk, although it is okay for a URL
 	 * (see http://www.ietf.org/rfc/rfc2396.txt), where it is classified as
-	 * mark. But the trac http://bcnserver/trac/area-tecnica/ticket/3819
-	 * prefers to exclude it to adapt to habits of the online survey industry.
+	 * mark.
 	 * @param c 
 	 * @return boolean */
 	public static boolean isSafe(char c){

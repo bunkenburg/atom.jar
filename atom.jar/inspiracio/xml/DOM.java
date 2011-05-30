@@ -97,9 +97,13 @@ public class DOM {
 	 * */
 	public static Transformer newTransformer(){
 		try{
-			String s="com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl";
-			ClassLoader loader=Object.class.getClassLoader();
-			TransformerFactory factory=TransformerFactory.newInstance(s, loader);
+			//Why did someone put an explicit implementation class name?
+			//String s="com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl";
+			//ClassLoader loader=Object.class.getClassLoader();
+			//TransformerFactory factory=TransformerFactory.newInstance(s, loader);
+			
+			//Use the default factory.
+			TransformerFactory factory=TransformerFactory.newInstance();
 			Transformer transformer=factory.newTransformer();//TransformerConfigurationException
 			return transformer;
 		}catch(TransformerConfigurationException tce){

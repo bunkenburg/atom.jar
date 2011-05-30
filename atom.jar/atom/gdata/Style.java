@@ -21,7 +21,7 @@ package atom.gdata;
  * the amount of data in the response. Similar to the style of
  * java.text.DateFormat.
  * */
-public enum Style {
+public enum Style{
 	
 	/** plain style: only standard Atom-elements */
 	PLAIN, 

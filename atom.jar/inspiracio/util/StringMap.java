@@ -25,7 +25,7 @@ import java.util.TreeMap;
  * The map can only contain acceptable entries. An entry is
  * acceptable if the value is not null and not "".
  * */
-public class StringMap extends MapWrapper<String,String> {
+public class StringMap extends MapWrapper<String,String>{
 
 	/** Construct from the acceptable entries in a map.
 	 * The unacceptable entries are skipped.
@@ -43,9 +43,9 @@ public class StringMap extends MapWrapper<String,String> {
 	 * @exception IllegalArgumentException The entry is unacceptable.
 	 */
 	public String put(String key, String value){
-		if (value!=null){
+		if(value!=null){
 			return super.put(key, value);
-		} else {
+		}else{
 			throw new IllegalArgumentException();
 		}
 	}
