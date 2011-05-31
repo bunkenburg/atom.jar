@@ -147,7 +147,7 @@
 			<bottom></bottom>
 		</javadoc>
 		<zip destfile="stage/atom-server-javadoc.zip" basedir="doc/atom-server/" />
-		<!--delete file="stage/overview.html"></delete-->
+		<delete file="stage/overview.html"></delete>
 		<zip destfile="stage/atom-server-javadoc.zip" basedir="doc/atom-server/" />
 	</target>
 
