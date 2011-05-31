@@ -130,7 +130,7 @@ public class DOM {
 
 	/** Create a script-element that contains javascript.
 	 * Creates an Element with tag name "script" that contains
-	 * an XML-commment and in the comment, between line breaks,
+	 * an XML-comment and in the comment, between line breaks,
 	 * the javascript code.
 	 * That way, the javascript code will not be destroyed by
 	 * XML-escaping of "&lt;". The line breaks ensure that the
