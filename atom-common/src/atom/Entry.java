@@ -480,12 +480,10 @@ public class Entry extends RootElement implements EasySAXParseable{
 		Map<String, String> atts=this.getAttributes();
 
 		//atomCommonAttributes
-		if(this.base!=null){
+		if(this.base!=null)
 			atts.put("base", this.base);
-		}
-		if(this.lang!=null){
+		if(this.lang!=null)
 			atts.put("lang", this.lang);
-		}
 
 		//gd:etag
 		String etag=this.getETag();
@@ -509,15 +507,15 @@ public class Entry extends RootElement implements EasySAXParseable{
 		//atomCategory* future
 
 		//& atomContent?
-		if(this.content!=null){
+		if(this.content!=null)
 			this.content.parse(handler, "content");
-		}
 
 		//& atomContributor* future
 
 		//& atomId
 		//The ID really must be an IRI.
-		handler.element("id", this.id);
+		if(this.id!=null)
+			handler.element("id", this.id);
 
 		// self link
 		if(getURI()!=null) {
@@ -536,19 +534,20 @@ public class Entry extends RootElement implements EasySAXParseable{
 		}
 
 		//& atomPublished?
-		if(this.published!=null){
+		if(this.published!=null)
 			handler.element("published", this.published);
-		}
 
 		//& atomRights? future
 		//& atomSource? future
 		//& atomSummary? future
 
 		//& atomTitle
-		this.title.parse(handler, "title");
+		if(this.title!=null)
+			this.title.parse(handler, "title");
 
 		//& atomUpdated
-		handler.element("updated", this.updated);
+		if(this.updated!=null)
+			handler.element("updated", this.updated);
 
 		//& extensionElement*
 		Iterator<Element> extensions=this.extensions.iterator();
