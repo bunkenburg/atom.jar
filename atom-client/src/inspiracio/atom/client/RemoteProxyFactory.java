@@ -74,6 +74,9 @@ public final class RemoteProxyFactory implements ProxyFactory, PrincipalMaker{
 	
 	/** The cookies to include in every request, in a map. */
 	private Map<String,String>cookies=new HashMap<String,String>();
+	
+	/** Should compress requests and response with gzip? */
+	private boolean gzip=true;
 
 	//Constructor --------------------------------------
 
@@ -123,6 +126,12 @@ public final class RemoteProxyFactory implements ProxyFactory, PrincipalMaker{
 			this.propertyChanged(e);
 		}
 	}
+
+	/** Compress requests and responses with gzip? */
+	public void setGZip(boolean b){this.gzip=b;}
+
+	/** Compress requests and responses with gzip? */
+	public boolean getGZip(){return this.gzip;}
 
 	public String getHost(){
 		HttpURL url=new HttpURL(this.base);
@@ -208,10 +217,6 @@ public final class RemoteProxyFactory implements ProxyFactory, PrincipalMaker{
 	/** Given an AtomBean-class, delivers an AtomProxy for it. */
 	@SuppressWarnings("unchecked")
 	@Override public <T extends AtomBean> AtomProxy<T> get(Class<T> beanClass){
-		//Make sure this thread has a page context.
-		//There's no harm in setting the page context many times.
-//		PageContextFactory.setPageContext(this.pc);
-
 		//Make a proxy object that delegates to in invocation handler.
 		InvocationHandler handler=this.makeHandler(beanClass);
 		Class<?>[] interfaces={AtomProxy.class};//the interface the proxy will implement
@@ -260,13 +265,14 @@ public final class RemoteProxyFactory implements ProxyFactory, PrincipalMaker{
 	 * @exception IOException
 	 * */
 	private HttpURLConnection openConnection(HttpURL url)throws MalformedURLException, IOException{
+		boolean gzip=RemoteProxyFactory.this.gzip;
 		String s=url.toString();
 		URL u=new URL(s);//MalformedURLException
 		HttpURLConnection con=(HttpURLConnection)u.openConnection();//IOException
-		con=new IHttpURLConnection(con);
-		this.basicAuthentication(con);
-		this.cookies(con);
-		return con;
+		IHttpURLConnection icon=new IHttpURLConnection(con, gzip);
+		this.basicAuthentication(icon);
+		this.cookies(icon);
+		return icon;
 	}
 
 	/** If the factory is configured with name and password, adds
@@ -401,28 +407,29 @@ public final class RemoteProxyFactory implements ProxyFactory, PrincipalMaker{
 		HttpURLConnection con=null;
 		try{
 			url.setParameter("style", "full");//Want the response with the most detail possible
-			Entry entry = bean.toEntry(true, Style.FULL);//send with the most detail possible. Exception
-			logger.info("POST " + url);
-
+			Entry entry=bean.toEntry(true, Style.FULL);//send with the most detail possible. Exception
+			
 			//using java's HttpURLConnection
 			con=openConnection(url);
+			con.setDoOutput(true);
+			con.setDoInput(true);
+			con.setChunkedStreamingMode(0);
+			con.setRequestMethod("POST");
+			
 			//Problem: JBoss's implementation of http basic authentication with POST gives me an
 			//empty request input stream! But with PUT it works fine. So here a workaround:
 			//Simulate a POST by sending a PUT with a http header indicating the real desired
 			//http method POST.
-			//con.setRequestMethod("POST");
-			con.setRequestMethod("PUT");//ProtocolException
+			//con.setRequestMethod("PUT");//ProtocolException
 			//See http://code.google.com/apis/gdata/docs/2.0/basics.html.
-			con.setRequestProperty("X-HTTP-Method-Override", "POST");
-			con.setDoOutput(true);
-			con.setDoInput(true);
-			OutputStream out = con.getOutputStream();//IOException
+			//con.setRequestProperty("X-HTTP-Method-Override", "POST");
+			
+			OutputStream out=con.getOutputStream();//IOException
 			entry.write(out);//TransformerException
 			out.close();//IOException
 
-			InputStream in = con.getInputStream();//IOException 401
-			logger.info("HTTP response code: " + con.getResponseCode());
-			entry = Entry.parse(in);
+			InputStream in=con.getInputStream();//IOException 401
+			entry=Entry.parse(in);
 			in.close();
 			bean=bean.fromEntry(entry);
 			return bean;
@@ -461,6 +468,10 @@ public final class RemoteProxyFactory implements ProxyFactory, PrincipalMaker{
 			//bug
 			logger.error("Exception: ", e);
 			throw new InternalServerErrorException(e);
+		}
+		finally{
+			if(con!=null)
+				con.disconnect();
 		}
 	}
 
@@ -561,6 +572,10 @@ public final class RemoteProxyFactory implements ProxyFactory, PrincipalMaker{
 			logger.error("Exception: ", e);
 			throw new InternalServerErrorException(e);
 		}
+		finally{
+			if(con!=null)
+				con.disconnect();
+		}
 
 		return results;
 	}
@@ -611,6 +626,10 @@ public final class RemoteProxyFactory implements ProxyFactory, PrincipalMaker{
 				logger.warn("Error in communication to server.", ioe);
 				throw new InternalServerErrorException(ioe);
 			}
+		}
+		finally{
+			if(con!=null)
+				con.disconnect();
 		}
 	}
 
@@ -678,6 +697,10 @@ public final class RemoteProxyFactory implements ProxyFactory, PrincipalMaker{
 			logger.error("Exception: ", e);
 			throw new InternalServerErrorException(e);
 		}
+		finally{
+			if(con!=null)
+				con.disconnect();
+		}
 	}
 
 	/**
@@ -737,6 +760,10 @@ public final class RemoteProxyFactory implements ProxyFactory, PrincipalMaker{
 			//bug
 			logger.error("Exception: ", e);
 			throw new InternalServerErrorException(e);
+		}
+		finally{
+			if(con!=null)
+				con.disconnect();
 		}
 	}
 

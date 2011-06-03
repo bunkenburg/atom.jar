@@ -40,16 +40,22 @@ public final class IHttpURLConnection extends HttpURLConnectionWrapper{
 	
 	//State --------------------------------------
 	
+	/** Compress requests and responses with gzip? */
+	private final boolean gzip;
+	
 	//Constructor --------------------------------
 	
-	public IHttpURLConnection(HttpURLConnection con){
+	/** @param gzip Compress requests and responses with gzip? */
+	public IHttpURLConnection(HttpURLConnection con, boolean gzip){
 		super(con);
-		
-		//Tell the server that request body is gzipped.
-		con.addRequestProperty(CONTENT_ENCODING, GZIP);
-		
-		//Tell the server that we want a gzipped response.
-		con.addRequestProperty(ACCEPT_ENCODING, GZIP);
+		this.gzip=gzip;
+		if(gzip){
+			//Tell the server that request body is gzipped.
+			con.addRequestProperty(CONTENT_ENCODING, GZIP);
+
+			//Tell the server that we want a gzipped response.
+			con.addRequestProperty(ACCEPT_ENCODING, GZIP);
+		}
 	}
 
 	//Methods ------------------------------------
@@ -75,11 +81,11 @@ public final class IHttpURLConnection extends HttpURLConnectionWrapper{
 	}
 
 	/** Gets the stream to write the response. */
-	@Override public OutputStream getOutputStream() throws IOException {
+	@Override public OutputStream getOutputStream() throws IOException{
 		OutputStream out=super.getOutputStream();
-		out=new GZIPOutputStream(out);
+		if(gzip)
+			out=new GZIPOutputStream(out);
 		return out;
 	}
-	
 	
 }
