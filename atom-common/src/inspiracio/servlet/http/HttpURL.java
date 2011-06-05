@@ -108,22 +108,15 @@ public class HttpURL implements Cloneable, Comparable<HttpURL>{
 	/** The complete URL in a StringBuilder. */
 	private StringBuilder url=null;
 
-	/** Make an HttpURL initialised to the empty String.
-	 * <p>
-	 * Not implemented, because it only applies on the server:
-	 * If there is a current request, initialise the buffer with
-	 * that request. If there is no current request, leave the
-	 * buffer null. The client must call setters on the constructed
-	 * instance, for example setComplete().
-	 * (Maybe could implement it via reflection, so that I don't create server-dependencies?)
-	 * */
+	/** Make an HttpURL initialised to an arbitrary URL. */
 	public HttpURL(){
 //		try{
 //			this.setCurrentURL();
 //		}catch(NoCurrentRequestException e){
 //			this.url=null;
 //		}
-		this.url=new StringBuilder();
+		String s="http://www.google.com/";
+		this.url=new StringBuilder(s);
 	}
 	
 	/** Make an HttpURL from a complete URL, an absolute URL, or

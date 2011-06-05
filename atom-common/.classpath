@@ -3,7 +3,8 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="src-test"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry exported="true" kind="lib" path="/home/alex/git/atom/lib/gdata-core-1.0.jar"/>
-	<classpathentry exported="true" kind="lib" path="/home/alex/git/atom/lib/log4j-boot.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
+	<classpathentry kind="lib" path="lib/gdata-core-1.0.jar"/>
+	<classpathentry kind="lib" path="lib/log4j-boot.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
