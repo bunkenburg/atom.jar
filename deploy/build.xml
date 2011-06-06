@@ -42,8 +42,9 @@
 	</target>
 				
 	<!--Make atom-server.jar and atom-client.jar-->
-	<target name="build" description="Builds a fresh stage/atom.jar." depends="compile">
-		<!--Make atom-server.jar with generated MANIFEST.MF, from atom-common and atom-server.-->
+	<target name="build" description="Builds a fresh stage/atom-*.jar." depends="compile">
+		
+		<!--Make stage/atom-server.jar with generated MANIFEST.MF, from atom-common and atom-server.-->
 		<loadfile property="version" srcfile="version.txt" />
 		<mkdir dir="stage"/>
 		<jar destfile="stage/atom-server.jar" index="true">
@@ -56,7 +57,8 @@
 			<fileset dir="atom-common/src/"></fileset>
 			<fileset dir="atom-server/src/"></fileset>
 		</jar>
-		<!--Make atom-client.jar with generated MANIFEST.MF-->
+		
+	<!--Make stage/atom-client.jar with generated MANIFEST.MF-->
 		<loadfile property="version" srcfile="version.txt" />
 		<mkdir dir="stage"/>
 		<jar destfile="stage/atom-client.jar" index="true">
@@ -69,6 +71,11 @@
 			<fileset dir="atom-common/src/"></fileset>
 			<fileset dir="atom-client/src/"></fileset>
 		</jar>
+	
+		<!--Copy the JARs into test projects-->
+		<copy todir="atom-client-android/lib/" file="stage/atom-client.jar"></copy>
+		<copy todir="atom-server-appengine/atom-server-appengine/war/WEB-INF/lib/" file="stage/atom-server.jar"></copy>
+	
 	</target>
 		
 	<target name="daily_build">
