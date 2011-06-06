@@ -1,0 +1,1 @@
+cp ../../atom-common/src-test/inspiracio/user/User.java src/inspiracio/user/

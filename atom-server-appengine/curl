@@ -1,0 +1,19 @@
+Simulate a POST
+curl -v -i -X POST --upload-file entry.xml http://192.168.2.102:8888/test/-/user
+
+java.io.IOException: Server returned HTTP response code: 411 for URL: http://192.168.2.102:8888/test/-/
+	at sun.net.www.protocol.http.HttpURLConnection.getInputStream(HttpURLConnection.java:1436)
+	at inspiracio.atom.client.HttpURLConnectionClient.post(HttpURLConnectionClient.java:61)
+HTTP Status-Code 411: Length Required. 
+
+If using con.setChunkedStreamingMode(0): HTTP Status-Code 411: Length Required. 
+
+        		"<?xml version='1.0' encoding='UTF-8'?>" +
+        		"<entry xmlns:gd='http://schemas.google.com/g/2005' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'>" +
+        		"<title>inspiracio@gmail.com</title>" +
+        		"<siine:email>" + EMAIL + "</siine:email>" +
+        		"<siine:mobileNumber>678 693 830</siine:mobileNumber>" +
+        		"<siine:androidModel>android model</siine:androidModel>" +
+        		"<siine:imei>imei</siine:imei>" +
+        		"</entry>";
+

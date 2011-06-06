@@ -372,7 +372,7 @@ public final class RemoteProxyFactory implements ProxyFactory, PrincipalMaker{
 				else if("insert".equals(methodName)){
 					//T insert(T bean)
 					if(args[0] instanceof AtomBean){
-						AtomBean bean = (AtomBean)args[0];
+						AtomBean bean=(AtomBean)args[0];
 						return insert(url, bean);
 					}
 					//List<T> insert(List<T>)
@@ -413,8 +413,9 @@ public final class RemoteProxyFactory implements ProxyFactory, PrincipalMaker{
 			con=openConnection(url);
 			con.setDoOutput(true);
 			con.setDoInput(true);
-			con.setChunkedStreamingMode(0);
 			con.setRequestMethod("POST");
+			//con.setChunkedStreamingMode(0);//Chunking requires Content-Length. Do not chunk.
+			con.setRequestProperty("Content-Type", "application/xml+atom; charset=UTF-8");
 			
 			//Problem: JBoss's implementation of http basic authentication with POST gives me an
 			//empty request input stream! But with PUT it works fine. So here a workaround:
@@ -448,8 +449,8 @@ public final class RemoteProxyFactory implements ProxyFactory, PrincipalMaker{
 			//Another IOException: that's a normal communication problem.
 			//See if we have a server response at all.
 			try{
-				int status = con.getResponseCode();
-				String msg = con.getResponseMessage();
+				int status=con.getResponseCode();
+				String msg=con.getResponseMessage();
 				logger.warn("HTTP response: " + status + " " + msg);
 				HttpException he=HttpException.getInstance(status, msg);
 				throw he;
@@ -523,6 +524,7 @@ public final class RemoteProxyFactory implements ProxyFactory, PrincipalMaker{
 			
 			con.setDoOutput(true);
 			con.setDoInput(true);
+			con.setRequestProperty("Content-Type", "application/xml+atom; charset=UTF-8");
 			OutputStream out=con.getOutputStream();//IOException
 			feed.write(out);//TransformerException
 			feed=null;//help gc
@@ -652,6 +654,7 @@ public final class RemoteProxyFactory implements ProxyFactory, PrincipalMaker{
 			con.setRequestMethod("PUT");//ProtocolException
 			con.setDoOutput(true);
 			con.setDoInput(true);
+			con.setRequestProperty("Content-Type", "application/xml+atom; charset=UTF-8");
 			OutputStream out=con.getOutputStream();//IOException
 			entry.write(out);//TransformerException
 			out.close();//IOException

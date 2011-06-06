@@ -380,8 +380,8 @@ public abstract class AtomServlet extends IHttpServlet{
 			long initial=System.currentTimeMillis();
 
 			InputStream in=request.getInputStream();
-			byte[] prefix="body=".getBytes("UTF-8");
-			in=new PrefixIgnorerInputStream(prefix, in);//enables testing. Ok for PROD, but you may also eliminate for PROD.
+			//byte[] prefix="body=".getBytes("UTF-8");
+			//in=new PrefixIgnorerInputStream(prefix, in);//enables testing. Ok for PROD, but you may also eliminate for PROD.
 			Entry entry=Entry.parse(in);
 
 			if(etag!=null)

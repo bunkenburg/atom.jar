@@ -1,0 +1,22 @@
+application: atom-server-appengine
+version: 1
+runtime: java
+
+welcome_files:
+  - index.html
+  - index.jsp
+
+handlers:
+# All Atom requests go here.
+  - url: /test/*
+    servlet: inspiracio.atom.TestServlet
+    name: test
+#    init_params:
+#      beanPackage: com.siine
+#    login: required
+      
+#web_xml: |
+#  <error-page>
+#    <error-code>500</error-code>
+#    <location>/errors/servererror.jsp</location>
+#  </error-page>
