@@ -108,8 +108,17 @@ public class IHttpServletRequest extends HttpServletRequestWrapper{
 	@Override public ServletInputStream getInputStream()throws IOException{
 		ServletInputStream in=super.getInputStream();
 		if(this.zippedRequest){
-			InputStream i=new GZIPInputStream(in);
-			in=new ServletInputStreamWrapper(i);
+			try{
+				InputStream i=new GZIPInputStream(in);
+				in=new ServletInputStreamWrapper(i);
+			}catch(IOException ioe){
+				//Maybe Google AppEngine server already has unzipped (without changing the headers)?
+				String message=ioe.getMessage();
+				if("Not in GZIP format".equals(message))
+					in=super.getInputStream();//I hope the GZipInputStream constructor has not yet consumed bytes.
+				else
+					throw ioe;
+			}
 		}
 		return in;
 	}

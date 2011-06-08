@@ -4,8 +4,7 @@
       android:versionCode="1"
       android:versionName="1.0">
     <uses-sdk android:targetSdkVersion="8" android:minSdkVersion="8"></uses-sdk>
-    <permission android:name="android.permission.INTERNET">
-    </permission>
+    <permission android:name="android.permission.INTERNET"></permission>
     <uses-permission android:name="android.permission.INTERNET"></uses-permission>
 
 
