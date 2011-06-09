@@ -1,3 +1,4 @@
+xWorks with Google AppEngine, where the container already does http request unzipping
  AtomBean.toEntry refine Exception
  full streaming
  Transactions --flexible between normal JEE transactions and JAE transactions. See http://code.google.com/appengine/docs/java/datastore/transactions.html.
