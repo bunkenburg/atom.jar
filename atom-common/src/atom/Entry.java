@@ -225,9 +225,9 @@ public class Entry extends RootElement implements EasySAXParseable{
 
 	/** Sets the content.
 	 * @param content */
-	public void setContent(Text content) {this.content = content;}
+	public void setContent(Text content) {this.content=content;}
 
-	public String getId() {return id;}
+	public String getId(){return id;}
 
 	/** The ID should be String.
 	 * But often atom beans have Integer-IDs.
@@ -235,7 +235,7 @@ public class Entry extends RootElement implements EasySAXParseable{
 	 * you can simply call entry.setId(Object).
 	 * @param id the id to set
 	 */
-	public void setId(Object id) {this.id = id.toString();}
+	public void setId(Object id){this.id=id.toString();}
 
 	public String getETag(){return this.etag;}
 	public void setETag(String etag){this.etag=etag;}
@@ -323,6 +323,33 @@ public class Entry extends RootElement implements EasySAXParseable{
 		return result;
 	}
 
+	/** Gets the text content of the first extension element with a specific tag, or null.
+	 * @param tag
+	 * @return first extension element with that tag, or null if there is none */
+	public String getExtensionElementTextContent(String tag){
+		Element result=this.getExtensionElement(tag);
+		if(result==null)return null;
+		return result.getTextContent();
+	}
+
+	/** Gets the long content of the first extension element with a specific tag, or null.
+	 * @param tag
+	 * @return first extension element with that tag, or null if there is none */
+	public Long getExtensionElementLongContent(String tag){
+		Element result=this.getExtensionElement(tag);
+		if(result==null)return null;
+		return result.getLongContent();
+	}
+
+	/** Gets the boolean content of the first extension element with a specific tag, or null.
+	 * @param tag
+	 * @return first extension element with that tag, or null if there is none */
+	public Boolean getExtensionElementBooleanContent(String tag){
+		Element result=this.getExtensionElement(tag);
+		if(result==null)return null;
+		return result.getBooleanContent();
+	}
+
 	/** Gets the first extension element with a specific tag, or null.
 	 * @param tag
 	 * @return first extension element with that tag, null if not found. */
@@ -343,8 +370,10 @@ public class Entry extends RootElement implements EasySAXParseable{
 	 * key and the body is like the value.
 	 * @param tag The tag name of the new child element
 	 * @param body Textual content of the extension element, not escaped.
+	 * 	Does nothing if the body is null.
 	 * */
 	public void addSimpleExtElement(String tag, String body){
+		if(body==null)return;
 		Element child=new Element(tag);
 		child.addChild(body);
 		this.addExtElement(child);
@@ -353,36 +382,40 @@ public class Entry extends RootElement implements EasySAXParseable{
 	/** Adds an extension element containing only text representing an
 	 * integer number.
 	 * @param tag The tag name of the new child element
-	 * @param number
+	 * @param number Does nothing if number is null.
 	 * */
-	public void addSimpleExtElement(String tag, int number){
+	public void addSimpleExtElement(String tag, Integer number){
+		if(number==null)return;
 		this.addSimpleExtElement(tag, Integer.toString(number));
 	}
 
 	/** Adds an extension element containing only text representing a long number.
 	 * @param tag The tag name of the new child element
-	 * @param number
+	 * @param number Does nothing if number is null.
 	 * */
-	public void addSimpleExtElement(String tag, long number){
+	public void addSimpleExtElement(String tag, Long number){
+		if(number==null)return;
 		this.addSimpleExtElement(tag, Long.toString(number));
 	}
 
 	/** Adds an extension element containing only text representing a timestamp.
 	 * The timestamp will be represented according to RTC 3339.
 	 * @param tag The tag name of the new child element
-	 * @param date
+	 * @param date The method does nothing if the date is null.
 	 * */
 	public void addSimpleExtElement(String tag, Date date){
-		String s = XMLDate.format(date);
+		if(date==null)return;
+		String s=XMLDate.format(date);
 		this.addSimpleExtElement(tag, s);
 	}
 
 	/** Adds an extension element containing only text representing a boolean,
 	 * which will appear as "true" or "false".
 	 * @param tag The tag name of the new child element
-	 * @param b */
-	public void addSimpleExtElement(String tag, boolean b){
-		String s = Boolean.toString(b);
+	 * @param b Does nothing if b is null. */
+	public void addSimpleExtElement(String tag, Boolean b){
+		if(b==null)return;
+		String s=Boolean.toString(b);
 		this.addSimpleExtElement(tag, s);
 	}
 
