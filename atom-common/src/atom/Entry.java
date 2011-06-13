@@ -233,9 +233,12 @@ public class Entry extends RootElement implements EasySAXParseable{
 	 * But often atom beans have Integer-IDs.
 	 * So here the parameter's type is Object so that
 	 * you can simply call entry.setId(Object).
-	 * @param id the id to set
+	 * @param id the id to set. Does nothing if null.
 	 */
-	public void setId(Object id){this.id=id.toString();}
+	public void setId(Object id){
+		if(id==null)return;
+		this.id=id.toString();
+	}
 
 	public String getETag(){return this.etag;}
 	public void setETag(String etag){this.etag=etag;}
