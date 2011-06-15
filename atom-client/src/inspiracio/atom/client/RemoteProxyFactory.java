@@ -29,6 +29,7 @@ import inspiracio.util.Base64Coder;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -601,7 +602,15 @@ public final class RemoteProxyFactory implements ProxyFactory, PrincipalMaker{
 			con.setRequestMethod("DELETE");//ProtocolException
 
 			//send the request
-			con.getInputStream();//IOException 401
+			try{
+				con.getInputStream();//IOException 401
+			}catch(EOFException eofe){
+				//Between Android level 7 and simulated GAE, throws EOFException.
+				//Which is okay, because there is no response body.
+				int status=con.getResponseCode();
+				if(status!=200)
+					throw eofe;
+			}
 			logger.debug("HTTP response code: " + con.getResponseCode());//IOException
 		}
 		catch(MalformedURLException mue){
