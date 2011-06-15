@@ -76,6 +76,13 @@
 		<copy todir="atom-client-android/lib/" file="stage/atom-client.jar"></copy>
 		<copy todir="atom-server-appengine/atom-server-appengine/war/WEB-INF/lib/" file="stage/atom-server.jar"></copy>
 	
+		<!--if there is copy.sh, call it, to copy the JARs into other projects.-->
+		<if>
+	 		<available file="deploy/copy.sh" />
+	 		<then>
+	   			<exec executable="deploy/copy.sh" />
+	 		</then>
+		</if>
 	</target>
 		
 	<target name="daily_build">
