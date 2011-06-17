@@ -119,13 +119,15 @@ public class EasyContentHandler extends ContentHandlerWrapper{
 	
 	/** Adds a simple element with a String as body. 
 	 * @param tag
-	 * @param body Unescaped.
+	 * @param body Unescaped.Does nothing if null.
 	 * @exception SAXException
 	 * */
-	public void element(String tag, String body) throws SAXException {
-		this.startElement(tag);
-		this.characters(body);
-		this.endElement(tag);
+	public void element(String tag, String body) throws SAXException{
+		if(body!=null){
+			this.startElement(tag);
+			this.characters(body);
+			this.endElement(tag);
+		}
 	}
 	
 	/** Adds a simple element with an int as body. 
@@ -163,28 +165,32 @@ public class EasyContentHandler extends ContentHandlerWrapper{
 	
 	/** Adds a simple element with a date as body.
 	 * @param tag
-	 * @param date 
+	 * @param date Does nothing if the date is null.
 	 * @exception SAXException
 	 * */
-	public void element(String tag, Date date) throws SAXException {
-		String body = XMLDate.format(date);
-		this.startElement(tag);
-		this.characters(body);
-		this.endElement(tag);
+	public void element(String tag, Date date) throws SAXException{
+		if(date!=null){
+			String body = XMLDate.format(date);
+			this.startElement(tag);
+			this.characters(body);
+			this.endElement(tag);
+		}
 	}
 
 	/** Adds a simple element with a date as body.
 	 * @param tag
-	 * @param date 
+	 * @param date Does nothing if null.
 	 * @param pattern for formatting the date
 	 * @exception SAXException
 	 * */
-	public void element(String tag, Date date, String pattern) throws SAXException {
-		SimpleDateFormat df=new SimpleDateFormat(pattern);
-		String body=df.format(date);
-		this.startElement(tag);
-		this.characters(body);
-		this.endElement(tag);
+	public void element(String tag, Date date, String pattern) throws SAXException{
+		if(date!=null){
+			SimpleDateFormat df=new SimpleDateFormat(pattern);
+			String body=df.format(date);
+			this.startElement(tag);
+			this.characters(body);
+			this.endElement(tag);
+		}
 	}
 	
 	/** Escapes a String for XML and adds it to the content handler.
