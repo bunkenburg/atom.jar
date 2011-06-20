@@ -155,14 +155,13 @@ public abstract class AbstractAtomBean implements AtomBean{
 	 * <p>
 	 * Override if your bean has style, but call super.toEntry()
 	 * first so that it can set the namespaces (if you want namespaces).
-	 * @param root Will the entry be the root element of an XML document?
+	 * @param root Should we set XML namespaces?
 	 * 	If so, toEntry should set any namespace attributes that are necessary to
 	 * 	define the XML elements that come with the chosen style.
 	 * @param style
 	 * @see inspiracio.atom.AtomBean#toEntry(boolean, atom.gdata.Style)
 	 */
-	@Override public Entry toEntry(boolean root, Style style) //throws Exception
-	{
+	@Override public Entry toEntry(boolean root, Style style){
 		Entry entry=new Entry();
 
 		//etag
@@ -173,9 +172,8 @@ public abstract class AbstractAtomBean implements AtomBean{
 		}
 
 		//namespaces
-		if(root){
+		if(root)
 			this.addNamespace("gd", "http://schemas.google.com/g/2005");
-		}
 		for(Namespace ns : this.namespaces){
 			if(ns.location!=null)
 				entry.addNamespace(ns.prefix, ns.id, ns.location);
@@ -201,7 +199,7 @@ public abstract class AbstractAtomBean implements AtomBean{
 	 * @return fresh bean instance
 	 * */
 	@Override public AtomBean fromEntry(Entry entry){
-		throw new RuntimeException("not implemented in " + this.getClass());
+		throw new NotImplementedException("not implemented in " + this.getClass());
 	}
 
 }

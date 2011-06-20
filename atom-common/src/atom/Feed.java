@@ -197,13 +197,16 @@ public class Feed extends RootElement implements EasySAXParseable{
 	}
 	
 	/** Adds entries to the feed.
+	 * Their namespaces will be added to the feed.
 	 * @param entries */
 	public void addEntry(Entry... entries){
 		for(Entry entry : entries){
 			this.entries.add(entry);
 			List<Namespace>ns=entry.getNamespaces();
-			for(Namespace n : ns)
-				this.addNamespace(n);
+			for(Namespace n : ns){
+				this.addNamespace(n);//Optimise: ignore atom, gd, xsi, as they are already in the feed.
+				//Optimise: remove the namespace from the entry.
+			}
 		}
 	}
 	

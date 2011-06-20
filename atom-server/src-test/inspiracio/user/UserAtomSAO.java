@@ -35,6 +35,7 @@ public class UserAtomSAO extends AbstractAtomSAO<User>{
 		if(principal==null)
 			throw new NotAuthorizedException();
 		User user=new User();
+		user.setBla("bla");
 		user.setEmail(principal.getName());
 		List<User>users=new ArrayList<User>();
 		users.add(user);

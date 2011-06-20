@@ -141,7 +141,7 @@ public abstract class AbstractAtomSAO<T extends AtomBean> implements AtomSAO<T>{
 		List<T>beans=this.get(url);//MethodNotAllowedException
 		for(T bean : beans){
 			try{
-				Entry entry=bean.toEntry(false, style);//Exception
+				Entry entry=bean.toEntry(true, style);//We want the bean with XML namespaces.
 				feed.addEntry(entry);
 			}catch(Exception e){
 				throw new InternalServerErrorException(e);
