@@ -49,11 +49,11 @@ public abstract class AbstractAtomBean implements AtomBean{
 	 * The implementation here throws NotImplementedException. */
 	@Override public String getKey(){throw new NotImplementedException();}
 
-	/** If the ETag of this object is an int, returns the int.
-	 * @exception NumberFormatException ETag is not an int. */
-	public int getVersion()throws NumberFormatException{
+	/** If the ETag of this object is an int, returns the long.
+	 * @exception NumberFormatException ETag is not a long. */
+	public long getVersion()throws NumberFormatException{
 		String etag=this.getETag();
-		int version=Integer.parseInt(etag);//NumberFormatException
+		long version=Long.parseLong(etag);//NumberFormatException
 		return version;
 	}
 
@@ -62,12 +62,17 @@ public abstract class AbstractAtomBean implements AtomBean{
 	 * clients takes care of escaping and quoting. */
 	@Override public void setETag(String etag){this.etag=etag;}
 
-	/** Sets ETag. Like setETag(String), just for convenience when the
-	 * ETag is an int. */
+	/** Sets ETag. Like setETag(String), just for convenience when the ETag is an int. */
 	public void setETag(int etag){this.etag=Integer.toString(etag);}
+
+	/** Sets ETag. Like setETag(String), just for convenience when the ETag is a long. */
+	public void setETag(long etag){this.etag=Long.toString(etag);}
 
 	/** Sets ETag to an int. */
 	public void setVersion(int version){this.setETag(version);}
+
+	/** Sets ETag to a long. */
+	public void setVersion(long version){this.setETag(version);}
 
 	//Namespaces ------------------------------------------------------
 
