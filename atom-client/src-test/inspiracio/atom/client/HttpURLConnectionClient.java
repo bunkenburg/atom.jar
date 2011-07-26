@@ -14,7 +14,6 @@ import java.io.Writer;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.List;
 
 import org.junit.Test;
 
@@ -79,7 +78,8 @@ public class HttpURLConnectionClient{
         	body=builder.toString();
         	say(body);
         }catch(Throwable t){
-        	StackTraceElement[] stack=t.getStackTrace();
+        	@SuppressWarnings("unused")
+			StackTraceElement[] stack=t.getStackTrace();
         	t.printStackTrace();
         }finally{
         	if(con!=null)
@@ -104,6 +104,7 @@ public class HttpURLConnectionClient{
 			say(r);
 
 		}catch(Throwable t){
+			@SuppressWarnings("unused")
 			StackTraceElement[] stack=t.getStackTrace();
 			t.printStackTrace();
         }finally{

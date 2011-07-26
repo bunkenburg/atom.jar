@@ -1,7 +1,6 @@
 package inspiracio.user;
 
 import inspiracio.atom.AbstractAtomBean;
-import inspiracio.atom.AtomBean;
 
 import java.util.Date;
 

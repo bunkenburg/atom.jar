@@ -1,0 +1,4 @@
+The classes that go into both atom-client.jar and atom-server.jar.
+
+They include the JavaBeans for each of the Atom-objects, like Entry and Feed,
+and some classes that are generally useful for http-communication in java, like HttpURL.

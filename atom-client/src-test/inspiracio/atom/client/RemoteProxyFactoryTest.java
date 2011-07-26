@@ -22,9 +22,11 @@ public class RemoteProxyFactoryTest{
 		factory.setCookie("another", value);
 		
 		//Get a proxy:
+		@SuppressWarnings("unused")
 		AtomProxy<User> proxy=factory.get(User.class);
 
 		//Get my user
+		@SuppressWarnings("unused")
 		GDataParameters params=new GDataParameters();
 		//List<User> users=proxy.get(params);
 		//if(users.size()!=1)throw new RuntimeException();

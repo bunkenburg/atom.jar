@@ -1,0 +1,3 @@
+A small project for testing atom-server.jar inside a GAE server.
+
+It provides User and UserAtomSAO.

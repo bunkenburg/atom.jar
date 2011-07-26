@@ -1,0 +1,3 @@
+Classes that go only into atom-client.jar, not in atom-server.jar
+
+Mainly RemoteProxyFactory.

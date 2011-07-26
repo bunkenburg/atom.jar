@@ -41,7 +41,7 @@ public class LocalProxyFactory implements ProxyFactory{
 	 * @param beanClass The Class identifying which beans the proxy should treat.
 	 * @return a fresh proxy instance
 	 * */
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@SuppressWarnings({ "unchecked"})
 	@Override public <T extends AtomBean> LocalAtomProxy<T> get(Class<T> beanClass){
 		LocalAtomProxy<T> proxy;
 		try{

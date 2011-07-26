@@ -1,0 +1,6 @@
+The classes that go only into atom-server.jar, not into atom-client.jar.
+
+They must be deployed in the server.
+
+They contain all the classes that are specific only to the server,
+which also include the LocalProxyFactory and LocalProxy.

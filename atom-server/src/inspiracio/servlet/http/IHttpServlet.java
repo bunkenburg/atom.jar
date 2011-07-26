@@ -29,7 +29,13 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
 
-/**
+/** Superclass for servlet that takes care of some general http tweaks,
+ * some for specific servers.
+ * <ul>
+ * 	<li>gzip. (Fails for GAE servers, because they do gzip magic without telling the servlet.)
+ * 	<li>Arbitrary status messages: a problem for Tomcat.
+ * 	<li>PUT/POST on JBoss.
+ * </ul>
  *
  * @author alex@inspiracio.com
  */
@@ -45,7 +51,7 @@ public abstract class IHttpServlet extends HttpServlet {
 
 	public IHttpServlet(){}
 
-	//Implement Servlet interface, delegating to Atom-methods ------------------
+	//Implement Servlet interface -----------------------------------------------
 
 	/** Some general things.
 	 * <ol>
@@ -60,10 +66,9 @@ public abstract class IHttpServlet extends HttpServlet {
 		boolean zipResponse=false;
 		String accept=request.getHeader(ACCEPT_ENCODING);
 		if(accept!=null){
-			zipResponse=accept.contains(GZIP);//Client wants a gzipped request.*/
+			zipResponse=accept.contains(GZIP);//Client wants a gzipped request.
 		} else {
-			logger.debug("Current client didn't send accept encoding header, so no " +
-					"compression is applied");
+			logger.debug("Current client didn't send accept encoding header, so no compression is applied");
 		}
 
 		boolean zippedRequest=false;
@@ -71,8 +76,7 @@ public abstract class IHttpServlet extends HttpServlet {
 		if(encoding!=null){
 			zippedRequest=encoding.contains(GZIP);//Client is sending a gzipped request body.
 		} else {
-			logger.debug("Current client didn't send content encoding header, so no " +
-				"compression is supposed");
+			logger.debug("Current client didn't send content encoding header, so no compression is supposed");
 		}
 
 		request=new IHttpServletRequest(request, zippedRequest);

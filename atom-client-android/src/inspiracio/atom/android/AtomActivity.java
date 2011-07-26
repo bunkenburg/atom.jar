@@ -41,7 +41,7 @@ public class AtomActivity extends Activity {
     private static final String EMAIL="alex@inspiracio.com";
     	
     /** Name of the authentication cookie */
-    private static final String COOKIE="dev_appserver_login";
+    //private static final String COOKIE="dev_appserver_login";
     
 
 	//State -----------------------------------------------------------------
@@ -91,8 +91,10 @@ public class AtomActivity extends Activity {
         	writer.write(body);
         	writer.flush();
         	
-        	int status=con.getResponseCode();
-        	String msg=con.getResponseMessage();
+        	@SuppressWarnings("unused")
+			int status=con.getResponseCode();
+        	@SuppressWarnings("unused")
+			String msg=con.getResponseMessage();
         	InputStream in=con.getInputStream();
         	in=new BufferedInputStream(in);
         	Reader reader=new InputStreamReader(in, "UTF-8");
@@ -121,7 +123,8 @@ public class AtomActivity extends Activity {
         	}
         	*/
         }catch(Throwable t){
-        	StackTraceElement[] stack=t.getStackTrace();
+        	@SuppressWarnings("unused")
+			StackTraceElement[] stack=t.getStackTrace();
         	t.printStackTrace();
         }finally{
         	if(con!=null)
@@ -136,6 +139,7 @@ public class AtomActivity extends Activity {
 			List<User> users=proxy.get(params);
 			System.out.println(users);
 		}catch(Throwable t){
+			@SuppressWarnings("unused")
 			StackTraceElement[] stack=t.getStackTrace();
 			t.printStackTrace();
         }finally{
@@ -150,6 +154,7 @@ public class AtomActivity extends Activity {
 			proxy.delete(id, etag);
 			System.out.println("deleted " + id + " " + etag);
 		}catch(Throwable t){
+			@SuppressWarnings("unused")
 			StackTraceElement[] stack=t.getStackTrace();
 			t.printStackTrace();
         }finally{
@@ -164,6 +169,7 @@ public class AtomActivity extends Activity {
 			User r=proxy.insert(u);
 			System.out.println(r);
 		}catch(Throwable t){
+			@SuppressWarnings("unused")
 			StackTraceElement[] stack=t.getStackTrace();
 			t.printStackTrace();
         }finally{
@@ -181,6 +187,7 @@ public class AtomActivity extends Activity {
 			User r=proxy.update(u);
 			System.out.println(r);
 		}catch(Throwable t){
+			@SuppressWarnings("unused")
 			StackTraceElement[] stack=t.getStackTrace();
 			t.printStackTrace();
         }finally{
@@ -244,6 +251,7 @@ public class AtomActivity extends Activity {
 		}
 		String value =cookie.get(COOKIE);
 		*/
+		@SuppressWarnings("unused")
 		String value="bla";
 		
 		RemoteProxyFactory factory=new RemoteProxyFactory(base);

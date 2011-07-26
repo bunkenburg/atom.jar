@@ -13,5 +13,8 @@ public class HttpURLTest {
            url.setParameter("continue", "http://localhost/");
            url.setParameter("auth", "bla");
            String authURI = url.toString();
+           say(authURI);
 	}
+	
+	void say(Object o){System.out.println(o);}
 }

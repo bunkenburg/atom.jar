@@ -1,7 +1,6 @@
 package inspiracio.user;
 
 import inspiracio.atom.AbstractAtomSAO;
-import inspiracio.servlet.http.BadRequestException;
 import inspiracio.servlet.http.ForbiddenException;
 import inspiracio.servlet.http.HttpException;
 import inspiracio.servlet.http.InternalServerErrorException;
